@@ -9,22 +9,12 @@
     <h1>Enquete</h1>
     <form action="votar/" >
         <p>{{pergunta}}</p>
-        <label>
-            <input type="radio" name="opcao" value="1">
-            Alternativa 1
-        </label><br>
-        <label>
-            <input type="radio" name="opcao" value="2">
-            Alternativa 2
-        </label><br>
-        <label>
-            <input type="radio" name="opcao" value="3">
-            Alternativa 3
-        </label><br>
-        <label>
-            <input type="radio" name="opcao" value="4">
-            Alternativa 4
-        </label><br><br>
+        {% for alternativa in alternativas %}
+            <label>
+                <input type="radio" name="opcao" value="{{ forloop.counter }}">
+                {{alternativa}}
+            </label><br>
+        {% endfor %}
         <button type="submit">Enviar</button>
     </form>
 </body>
