@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse
 
 # Create your views here.
@@ -12,8 +12,10 @@ def soma(request):
     return HttpResponse(f'<h1>{numero} + {numero} = {soma}</h1>')
 
 def calcular_imc(request):
-    altura = float(request.GET.get('altura'))
-    peso = float(request.GET.get('peso'))
+    if request.method == 'GET':
+        return redirect('imc:index')
+    altura = float(request.POST.get('altura'))
+    peso = float(request.POST.get('peso'))
     imc= peso/(altura*altura)
     if imc < 18.5:
         classificacao = 'Abaixo do peso'
