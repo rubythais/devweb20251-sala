@@ -3,5 +3,5 @@ from . import views
 app_name = 'imc'
 urlpatterns=[
     path('',views.index,name='index'),
-    path("processar/", views.calcular_imc, name = "calcular_imc"),
+    path("processar/", views.calcular_imc_view, name = "calcular_imc"),
 ]
