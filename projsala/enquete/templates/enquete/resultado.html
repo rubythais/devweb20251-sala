@@ -3,32 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
     <title>Resultado da Enquete</title>
-  
+    
 </head>
 <body>
-    <h1 style="text-align: center;">Resultado da Enquete - {{pergunta}}</h1>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Opção</th>
-                <th>Votos</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Exemplo de linha, substitua pelos dados dinâmicos -->
-            
-            {% for alternativa,voto in resultado %}
-            
-            <tr>
-                <td>{{alternativa}}</td>
-                <td>{{voto}}</td>
-            </tr>
-
-            {% endfor %}
-
-            
-        </tbody>
-    </table>
+    <section class="container">
+        <h1 class=" title">Resultado da Enquete - {{pergunta}}</h1>
+        <table class="table is-fullwidth is-hoverable">
+            <thead>
+                <tr>
+                    <th>Opção</th>
+                    <th>Votos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alternativa,voto in resultado %}
+                <tr>
+                    <td>{{alternativa}}</td>
+                    <td>{{voto}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'enquete:index' %}" class="button is-primary">Voltar</a>
+    </section>
+    
 </body>
 </html></html>
