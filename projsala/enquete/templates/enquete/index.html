@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enquete</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    {% load static %}
+    <script src="{% static 'enquete/js/msg.js' %}"></script>
 </head>
 <body>
     <section class="container">
@@ -23,7 +25,7 @@
             </div>
             <div class="field">
                 <div class="control">
-                    <button class="button is-primary" type="submit">Enviar Resposta</button>
+                    <button class="button is-primary" onclick="showMessage('Voto Registrado com Sucesso!')" type="submit">Enviar Resposta</button>
                 </div>
             </div>
     </form>

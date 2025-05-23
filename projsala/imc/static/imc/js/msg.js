@@ -1,0 +1,1 @@
+const showMessage = (classificacao) => {window.alert('Sua classificação é' + classificacao);};

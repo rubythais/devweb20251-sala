@@ -1,0 +1,6 @@
+.table {
+    --bulma-table-row-hover-background-color: var(--bulma-primary)
+}
+body{
+    background: url('../imgs/question.jpg');
+}
