@@ -1,1 +1,1 @@
-const showMessage = (classificacao) => {window.alert('Sua classificação é' + classificacao);};
+const showMessage = (classificacao) => {window.alert('Sua classificação é ' + classificacao);};
