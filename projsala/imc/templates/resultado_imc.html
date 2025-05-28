@@ -23,7 +23,8 @@
             </div>
             {% if classificacao %}
                 <script>
-                    showMessage({{ classificacao|escapejs }});
+                    let mensagem="{{classificacao}}";
+                    showMessage(mensagem);
                 </script>
             {% endif %}
         </div>
