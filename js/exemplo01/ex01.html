@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo Javascript</title>
+</head>
+<body>
+    <ul id="cursos"></ul>
+    <script>
+        const adicionarCurso = () => {
+        const cursos = ["Django", "Flask", "React", "Vue", "Angular"];
+        const cursosList = document.getElementById("cursos");
+        cursos.forEach(curso => {
+            const li = document.createElement("li");
+            li.innerText = curso;
+            cursosList.appendChild(li);
+        });
+    }
+    </script>
+    <button onclick="adicionarCurso()" >Adicionar</button>
+
+    <input type="text" name="campo" id="campo">
+    <p id="resultado"></p>
+    <script>
+        const campo = document.getElementById("campo");
+        const funcao= () => {
+            let valor = campo.value;
+            const resultado = document.getElementById("resultado");
+            resultado.innerText = valor;
+        }
+        campo.addEventListener("keyup",funcao );
+    </script>
+
+</body>
+</html>
