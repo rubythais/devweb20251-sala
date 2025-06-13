@@ -1,0 +1,47 @@
+{% extends "adocato/base.html" %}
+{%block title %}Gestão de Gatos{% endblock %}
+{% block content %}
+
+<div class="box">
+    <h1 class="title">Administração de Gatos</h1>
+    <form method="get" action="" class="mb-4">
+        <div class="field is-grouped">
+            <div class="control">
+                <label class="label" for="nome">Filtrar por nome:</label>
+            </div>
+            <div class="control">
+                <input class="input" type="text" id="nome" name="nome" value="{{ request.GET.nome }}">
+            </div>
+            <div class="control">
+                <button class="button is-link" type="submit">Filtrar</button>
+            </div>
+        </div>
+    </form>
+    <div class="table-container">
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Raça</th>
+                    <th>Idade</th>
+                    <th>Disponível</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for gato in gatos %}
+                <tr>
+                    <td>{{ gato.nome }}</td>
+                    <td>{{ gato.raca }}</td>
+                    <td>{{ gato.idade }}</td>
+                    <td>{{ gato.esta_disponivel}}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Nenhum gato encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

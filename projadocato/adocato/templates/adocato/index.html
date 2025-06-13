@@ -1,0 +1,12 @@
+{% extends "adocato/base.html" %}
+{%block title %}Página Inicial - Adocato{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Bem-vindo ao Adocato!</h1>
+        <p class="subtitle">Encontre e adote seu novo melhor amigo.</p>
+        <a href="{% url 'adocato:listar_gatos' %}" class="button is-primary mt-4">Ver Gatos para Adoção</a>
+    </div>
+</section>
+{% endblock %}

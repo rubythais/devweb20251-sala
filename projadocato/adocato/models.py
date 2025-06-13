@@ -22,3 +22,6 @@ class Gato(models.Model):
     @property
     def idade(self):
         return (date.today() - self.dataNascimento).days // 365
+    def esta_disponivel(self):
+        """Verifica se o gato está disponível para adoção."""
+        return "Sim" if self.disponivel else "Não"

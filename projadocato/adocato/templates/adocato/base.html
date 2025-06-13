@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Adocato{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+</head>
+<body>
+    <header>
+        <!-- Navbar do Bulma: https://bulma.io/documentation/components/navbar/ -->
+        <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="{% url 'adocato:index' %}">
+                    <strong>Adocato</strong>
+                </a>
+
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+            <div id="navbarBasic" class="navbar-menu">
+                <div class="navbar-start">
+                    <a class="navbar-item" href="#">Raça</a>
+                    <a class="navbar-item" href="{% url 'adocato:listar_gatos' %}">Gatos</a>
+                    <a class="navbar-item" href="#">Solicitação</a>
+                </div>
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <a href="#" class="button is-light">Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main class="section">
+        <div class="container">
+            {% block content %}
+            <!-- Conteúdo principal será inserido aqui -->
+             <h1 class="title">Bloco Padrão</h1>
+            {% endblock %}
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>Adocato &copy; {{ year|default:2025 }} - Todos os direitos reservados.</p>
+            <p>Contato: contato@adocato.com.br</p>
+        </div>
+    </footer>
+    <script>
+        // Bulma navbar burger menu
+        document.addEventListener('DOMContentLoaded', () => {
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            if ($navbarBurgers.length > 0) {
+                $navbarBurgers.forEach( el => {
+                    el.addEventListener('click', () => {
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
