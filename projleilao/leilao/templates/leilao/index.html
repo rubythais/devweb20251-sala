@@ -1,0 +1,26 @@
+{% extends 'base.html'%}
+
+{% block conteudo %}
+<h2>Leilões</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Data de Início</th>
+            <th>Hora de Início</th>
+            <th>Data de Término</th>
+            <th>Hora de Término</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for leilao in leiloes %}
+        <tr>
+            <td>{{ leilao.id }}</td>
+            <td>{{ leilao.dataInicio }}</td>
+            <td>{{ leilao.horaInicio}}</td>
+            <td>{{ leilao.dataTermino }}</td>
+            <td>{{ leilao.horaTermino }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+{% endblock %}
