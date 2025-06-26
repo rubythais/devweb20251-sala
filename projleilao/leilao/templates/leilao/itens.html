@@ -1,0 +1,30 @@
+{% extends 'base.html'%}
+{% block conteudo %}
+<h2> Itens dos Leilão {{leilao_id}}</h2>
+<form action="" method="get">
+    <label for="titulo">Título:</label>
+    <input type="text" id="titulo" name="titulo" value="">
+    <button type="submit">Buscar</button>
+</form>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Descrição</th>
+            <th>Lance Mínimo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in itensLeilao %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.titulo }}</td>
+            <td>{{ item.descricao }}</td>
+            <td>{{ item.lanceMinimo }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

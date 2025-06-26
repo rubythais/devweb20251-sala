@@ -15,7 +15,7 @@
     <tbody>
         {% for leilao in leiloes %}
         <tr>
-            <td>{{ leilao.id }}</td>
+            <td><a href="{% url 'leilao:listar_itens' leilao.id %}">{{ leilao.id }}</a></td>
             <td>{{ leilao.dataInicio }}</td>
             <td>{{ leilao.horaInicio}}</td>
             <td>{{ leilao.dataTermino }}</td>
