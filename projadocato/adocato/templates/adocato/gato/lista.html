@@ -21,6 +21,7 @@
         <table class="table is-striped is-hoverable is-fullwidth">
             <thead>
                 <tr>
+                    <th>Foto</th>
                     <th>Nome</th>
                     <th>Raça</th>
                     <th>Idade</th>
@@ -30,6 +31,13 @@
             <tbody>
                 {% for gato in gatos %}
                 <tr>
+                    <td>
+                        {% if gato.foto %}
+                            <figure class="image is-128x128">
+                                <img class="is-rounded" src="{{ gato.foto.url }}" />
+                            </figure>
+                        {%endif%}
+                    </td>
                     <td>{{ gato.nome }}</td>
                     <td>{{ gato.raca }}</td>
                     <td>{{ gato.idade }}</td>

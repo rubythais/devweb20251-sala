@@ -6,13 +6,14 @@
     <input type="text" id="titulo" name="titulo" value="">
     <button type="submit">Buscar</button>
 </form>
-<table>
+<table border="1">
     <thead>
         <tr>
             <th>ID</th>
             <th>Título</th>
             <th>Descrição</th>
             <th>Lance Mínimo</th>
+            <th>Total de Lances</th>
         </tr>
     </thead>
     <tbody>
@@ -22,6 +23,7 @@
             <td>{{ item.titulo }}</td>
             <td>{{ item.descricao }}</td>
             <td>{{ item.lanceMinimo }}</td>
+            <td>{{item.lances.count}}</td>
         </tr>
         {% endfor %}
     </tbody>
