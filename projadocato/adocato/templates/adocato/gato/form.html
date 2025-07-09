@@ -1,0 +1,182 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}{% if gato %}Editar {{ gato.nome }}{% else %}Cadastrar Gato{% endif %}{% endblock %}
+
+{% block content %}
+<div class="columns is-centered">
+    <div class="column is-8">
+        <div class="box">
+            <h4 class="title is-4">
+                {% if gato %}
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                        <span>Editar Gato: {{ gato.nome }}</span>
+                    </span>
+                {% else %}
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fas fa-plus"></i>
+                        </span>
+                        <span>Cadastrar Novo Gato</span>
+                    </span>
+                {% endif %}
+            </h4>
+
+            <form method="post" action="{% if gato and gato.id %}{% url 'adocato:atualizar_gato' gato.id %}{% else %}{% url 'adocato:cadastrar_gato' %}{% endif %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label" for="id_nome">Nome *</label>
+                            <div class="control">
+                                <input class="input" 
+                                       type="text" id="nome" name="nome" 
+                                       value="{{ gato.nome|default_if_none:'' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label" for="id_raca">Raça *</label>
+                            <div class="control">
+                                <div class="select is-fullwidth ">
+                                    <select id="id_raca" name="raca" required>
+                                        <option value="">Selecione uma raça</option>
+                                        {% for raca in racas %}
+                                            <option value="{{ raca.id }}"
+                                                    {% if gato.raca.id == raca.id %}selected{% endif %}>
+                                                {{ raca.nome }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label" for="id_sexo">Sexo *</label>
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select id="id_sexo" name="sexo" required>
+                                        <option value="">Selecione o sexo</option>
+                                        <option value="M" {% if gato.sexo == 'M' %}selected{% endif %}>Macho</option>
+                                        <option value="F" {% if gato.sexo == 'F' %}selected{% endif %}>Fêmea</option>
+                                    </select>
+                                </div>
+                            </div>
+                        
+                        </div>
+                    </div>
+                    
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label" for="id_cor">Cor *</label>
+                            <div class="control">
+                                <input class="input" 
+                                       type="text" id="id_cor" name="cor" 
+                                       value="{{ gato.cor|default_if_none:'' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label" for="id_dataNascimento">Data de Nascimento *</label>
+                            <div class="control">
+                                <input class="input" 
+                                       type="date" id="id_dataNascimento" name="data_nascimento" 
+                                       value="{{ gato.dataNascimento|date:'Y-m-d'|default_if_none:'' }}" required>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label" for="id_foto">Foto</label>
+                            <div class="control">
+                                <div class="file has-name">
+                                    <label class="file-label">
+                                        <input class="file-input" type="file" id="id_foto" name="foto" accept="image/*">
+                                        <span class="file-cta">
+                                            <span class="file-icon">
+                                                <i class="fas fa-upload"></i>
+                                            </span>
+                                            <span class="file-label">
+                                                Escolher arquivo...
+                                            </span>
+                                        </span>
+                                        <span class="file-name" id="file-name">
+                                            {% if foto_enviada %}{{ foto_enviada }}{% else %}Nenhum arquivo selecionado{% endif %}
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {% if gato and gato.foto %}
+                                <div class="mt-2">
+                                    <p class="help">Foto atual:</p>
+                                    <figure class="image is-96x96">
+                                        <img src="{{ gato.foto.url }}" alt="{{ gato.nome }}" class="is-rounded">
+                                    </figure>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <label class="label" for="id_descricao">Descrição</label>
+                    <div class="control">
+                        <textarea class="textarea" 
+                                  id="id_descricao" name="descricao" rows="4" 
+                                  placeholder="Descreva as características e personalidade do gato...">{{ gato.descricao|default_if_none:'' }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="field">
+                    <div class="control">
+                        <label class="checkbox">
+                            <input type="checkbox" id="id_disponivel" name="disponivel" 
+                                   {% if gato.disponivel %}checked{% endif %}>
+                            Disponível para adoção
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">
+                            <span class="icon">
+                                <i class="fas fa-save"></i>
+                            </span>
+                            <span>{% if gato %}Atualizar{% else %}Cadastrar{% endif %}</span>
+                        </button>
+                    </div>
+                    <div class="control">
+                        <a href="{% url 'adocato:listar_gatos' %}" 
+                           class="button">
+                            <span class="icon">
+                                <i class="fas fa-times"></i>
+                            </span>
+                            <span>Cancelar</span>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% load static %}
+<script src="{% static 'adocato/js/gato_form.js' %}"></script>

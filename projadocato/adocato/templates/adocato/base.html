@@ -5,6 +5,7 @@
     <title>{% block title %}Adocato{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    {% load static %}
 </head>
 <body>
     <header>
@@ -38,6 +39,7 @@
         </nav>
     </header>
     <main class="section">
+        {% include 'adocato/includes/messages.html' %}
         <div class="container">
             {% block content %}
             <!-- Conteúdo principal será inserido aqui -->

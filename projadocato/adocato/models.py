@@ -3,6 +3,7 @@ from datetime import date,datetime, timedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from .utils import Utilitaria
+
 class Raca(models.Model):
     nome = models.CharField(max_length=100, unique=True)
 
@@ -39,6 +40,11 @@ class Gato(models.Model):
     @property
     def idade(self):
         return (date.today() - self.dataNascimento).days // 365
+    def esta_disponivel(self):
+        if self.disponivel:
+            return "Disponível"
+        else:
+            return "Indisponível"
     def clean(self):
         erros={}
         if isinstance(self.dataNascimento, str):
@@ -53,7 +59,9 @@ class Gato(models.Model):
             erros['dataNascimento'] = "A data de nascimento não pode ser no futuro."
         if len(self.nome) < 3:
             erros['nome']="O nome do gato deve ter pelo menos 3 caracteres."
-        if len(self.cor) < 3:
+        if not self.cor:
+            erros['cor']="A cor do gato é obrigatória."
+        if self.cor and len(self.cor) < 3:
             erros['cor']="A cor do gato deve ter pelo menos 3 caracteres."
         if not self.raca:
             erros="O gato deve ter uma raça associada."
