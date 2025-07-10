@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 def run():
     um_ano_atras = date.today() - timedelta(days=365)
-    gatos = Gato.objects.filter(dataNascimento__lt=um_ano_atras)
+    gatos = Gato.objects.filter(dataNascimento__lt=um_ano_atras,disponivel=True)
     for gato in gatos:
         print(f"Gato: {gato.nome}")
         print(f"Raça: {gato.raca.nome}")
