@@ -5,6 +5,7 @@ class CasoUsoGato:
     def listar_gatos(): 
         """Lista todos os gatos cadastrados no banco de dados. Esse método pode ser removido, em função da extensão do método buscar_gatos."""
         return Gato.objects.all()
+    @staticmethod
     def listar_racas():
         """Lista todas as raças de gatos cadastradas no banco de dados."""
         return Raca.objects.all().order_by('nome')
