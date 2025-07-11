@@ -1,9 +1,14 @@
-from adocato.models import Gato, Raca # Importando os modelos Gato e Raca
+from adocato.models import Gato, Raca 
+from django.core.exceptions import ValidationError
 class CasoUsoGato:
     @staticmethod
     def listar_gatos(): 
-        """Lista todos os gatos cadastrados no banco de dados."""
+        """Lista todos os gatos cadastrados no banco de dados. Esse método pode ser removido, em função da extensão do método buscar_gatos."""
         return Gato.objects.all()
+    @staticmethod
+    def listar_racas():
+        """Lista todas as raças de gatos cadastradas no banco de dados."""
+        return Raca.objects.all().order_by('nome')
     @staticmethod
     def buscar_gato_por_id(gato_id):
         """Busca um gato pelo ID."""
@@ -12,14 +17,22 @@ class CasoUsoGato:
         except Gato.DoesNotExist:
             return None
     @staticmethod
-    def buscar_gatos_por_nome(nome):
-        """Busca gatos pelo nome independente do case."""
-        return Gato.objects.filter(nome__icontains=nome)
-    
+    def buscar_gatos(nome=None, raca_nome=None, disponivel=None):
+        """Aqui temos uma refatoração, incluindo uma busca genérica, com 2 parâmetros opcionais: nome e raça"""
+        query = Gato.objects.all()
+        if nome:
+            query = query.filter(nome__icontains=nome)
+        if raca_nome:
+            query=query.filter(raca__nome__icontains=raca_nome)
+        return query
     @staticmethod
-    def cadastrar_gato(nome, sexo, cor, data_nascimento, 
-                       descricao=None, disponivel=True, raca_id=None):
-        """Cadastra um novo gato no banco de dados."""  
+    def cadastrar_gato(nome, sexo, cor, data_nascimento, descricao=None, disponivel=True, raca_id=None,foto=None):
+        """Cadastra um novo gato no banco de dados."""
+        try:
+            raca_obj = Raca.objects.get(id=raca_id)
+        except Raca.DoesNotExist:
+            raise ValueError("Raça não encontrada.")
+        
         gato = Gato(
             nome=nome,
             sexo=sexo,
@@ -27,29 +40,45 @@ class CasoUsoGato:
             dataNascimento=data_nascimento,
             descricao=descricao,
             disponivel=disponivel,
-            raca=Raca.objects.get(id=raca_id)
+            raca=raca_obj,
+            foto=foto
         )
+        try:
+            gato.full_clean()
+        except ValidationError as e:
+            raise e
         gato.save()
         return gato
     
-    @staticmethod
-    def atualizar_gato(gato_id, nome=None, sexo=None, cor=None, 
-                       data_nascimento=None, descricao=None, disponivel=None, raca_id=None):
+    def atualizar_gato(gato_id, nome=None, sexo=None, cor=None, data_nascimento=None, descricao=None, disponivel=None, raca_id=None,foto=None):
         """Atualiza as informações de um gato existente."""
         gato = CasoUsoGato.buscar_gato_por_id(gato_id)
+        if not gato:
+            raise ValueError("Gato não encontrado.")
         gato.nome = nome
         gato.sexo = sexo
         gato.cor = cor
         gato.dataNascimento = data_nascimento
         gato.descricao = descricao
         gato.disponivel = disponivel
-        gato.raca = Raca.objects.get(id=raca_id)
+        # Só atualiza a foto se uma nova foi fornecida
+        if foto is not None:
+            gato.foto = foto
+        try:
+            gato.raca = Raca.objects.get(id=raca_id)
+        except Raca.DoesNotExist:
+            raise ValueError("Raça não encontrada.")
+        try:
+            gato.full_clean()
+        except ValidationError as e:
+            raise e
         gato.save()
         return gato
-    
     @staticmethod
     def excluir_gato(gato_id):
         """Exclui um gato do banco de dados."""
         gato = CasoUsoGato.buscar_gato_por_id(gato_id)
+        if not gato:
+            raise ValueError("Gato não encontrado.")
         gato.delete()
         return True
