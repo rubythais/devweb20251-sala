@@ -74,6 +74,7 @@ class CasoUsoGato:
             raise e
         gato.save()
         return gato
+    @staticmethod
     def excluir_gato(gato_id):
         """Exclui um gato do banco de dados."""
         gato = CasoUsoGato.buscar_gato_por_id(gato_id)
