@@ -1,6 +1,6 @@
 from django.forms import ValidationError
 from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required,user_passes_test
+from django.contrib.auth.decorators import login_required,user_passes_test, permission_required
 from adocato.services.casousogato import CasoUsoGato
 from adocato.services.casousoadotante import CasoUsoAdotante
 from adocato.services.casousocoordenador import CasoUsoCoordenador
@@ -111,9 +111,21 @@ def listar_gatos_disponiveis(request):
     raca_nome = request.GET.get('raca')
     gatos = CasoUsoGato.buscar_gatos_disponiveis(nome=nome, raca_nome=raca_nome)
     return render(request, 'adocato/gato/lista_disponiveis.html', {'gatos': gatos})
-@user_passes_test(eh_coordenador)
+
+#Esse controle é o mais simples, porém não é possível customizar o retorno
+@permission_required('adocato.pode_deletar_gato',raise_exception=True)
 def excluir_gato(request, gato_id):
     """Exclui um gato do banco de dados."""
+
+    
+    """
+    # Opção com customização de mensagem de erro e redirecionamento de erro
+    if not request.user.has_perm('adocato.pode_deletar_gato'):
+        GerenciadorMensagens.processar_erros_validacao(request, ValidationError("Você não tem permissão para excluir gatos."))
+        return redirect('adocato:listar_gatos')
+    
+    """
+
     gato = CasoUsoGato.buscar_gato_por_id(gato_id)
     if gato:
         gato.delete()

@@ -56,8 +56,9 @@
                                 <div class="buttons">
                                 
                                         <a class="button is-info" href="{% url 'adocato:atualizar_gato' gato.id %}">Editar</a>
-                                        <a class="button is-danger" href="{% url 'adocato:excluir_gato' gato.id %}" onclick="return confirm('Tem certeza que deseja excluir este gato?');">Excluir</a>
-                                
+                                        {% if perms.adocato.pode_deletar_gato %}
+                                            <a class="button is-danger" href="{% url 'adocato:excluir_gato' gato.id %}" onclick="return confirm('Tem certeza que deseja excluir este gato?');">Excluir</a>
+                                        {% endif %}
                                 </div>
                             </td>
                       {% endif %}

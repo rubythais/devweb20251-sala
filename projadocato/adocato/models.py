@@ -67,6 +67,13 @@ class Gato(models.Model):
             erros="O gato deve ter uma raça associada."
         if erros:
             raise ValidationError(erros)
+    class Meta:
+        verbose_name_plural = "Gatos"
+        verbose_name = "Gato"
+        ordering = ['nome']
+        permissions=[
+            ("pode_deletar_gato", "Pode deletar gato"),
+        ]
 
 class Adotante(User):
     nome= models.CharField(max_length=100)

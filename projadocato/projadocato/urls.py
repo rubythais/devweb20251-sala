@@ -18,12 +18,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
+from django.views.generic import RedirectView
 from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("adocato/",include("adocato.urls")),
     path("accounts/", include("django.contrib.auth.urls")),  # URLs for login, logout, password management
+    path("",RedirectView.as_view(url='adocato/', permanent=True)),  # Redirect root URL to adocato app
 ]
 
 if settings.DEBUG:

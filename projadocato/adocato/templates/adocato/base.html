@@ -25,7 +25,7 @@
             <div id="navbarBasic" class="navbar-menu">
                 <div class="navbar-start">
                     {%if eh_coordenador %}
-                        <a class="navbar-item" href="{% url 'adocato_listar_racas' %}">Raças</a>
+                        <a class="navbar-item" href="{% url 'adocato:listar_racas' %}">Raças</a>
                     {% endif %}
                     <a class="navbar-item" href="{% url 'adocato:listar_gatos' %}">Gatos</a>
                     {%if eh_coordenador or eh_adotante %}
