@@ -65,6 +65,7 @@ class GerenciadorSessaoUsuario:
         
         # Armazena na sessão
         request.session[sessao_key] = info_usuario
+        request.session['usuario_nome'] = info_usuario['usuario_nome'] # Armazena o nome do usuário(login) na sessão
         return info_usuario
     
     @staticmethod

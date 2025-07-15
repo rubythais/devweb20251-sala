@@ -42,7 +42,7 @@
                     </a>
                 </div>
             {% else %}
-                <p class="subtitle">Olá, {{ usuario_nome }}! 👋.</p>
+                <p class="subtitle">Olá, {{ request.session.usuario_nome }}! 👋.</p>
                 <p class="content">Painel de coordenação para registro de coordenadores.</p>
                 <a href="{% url 'adocato:listar_gatos' %}" class="button is-primary is-medium">Ver Gatos</a>
             {% endif %}
