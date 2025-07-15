@@ -63,6 +63,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "adocato.context_processors.usuario_context",
             ],
         },
     },
@@ -127,3 +128,7 @@ CSRF_TRUSTED_ORIGINS=['https://localhost:8000']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_URL = 'adocato:login'
+LOGIN_REDIRECT_URL = 'adocato:index'
+LOGOUT_REDIRECT_URL = 'adocato:login'

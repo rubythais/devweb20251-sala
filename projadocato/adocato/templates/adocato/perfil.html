@@ -1,0 +1,51 @@
+{% extends "adocato/base.html" %}
+{% block title %}Perfil do Usuário - Adocato{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Perfil do Usuário</h1>
+        
+        <div class="box">
+            <h2 class="subtitle">Informações Pessoais</h2>
+            
+            <div class="field">
+                <label class="label">Nome:</label>
+                <div class="control">
+                    <input class="input" type="text" value="{{ usuario_nome }}" readonly>
+                </div>
+            </div>
+            
+            <div class="field">
+                <label class="label">Username:</label>
+                <div class="control">
+                    <input class="input" type="text" value="{{ usuario_username }}" readonly>
+                </div>
+            </div>
+            
+            <div class="field">
+                <label class="label">Email:</label>
+                <div class="control">
+                    <input class="input" type="email" value="{{ usuario_email }}" readonly>
+                </div>
+            </div>
+            
+            <div class="field">
+                <label class="label">Tipo de Usuário:</label>
+                <div class="control">
+                    <span class="tag is-primary is-medium">
+                        {% if eh_adotante %}
+                            <i class="fas fa-heart"></i>&nbsp;Adotante
+                        {% elif eh_coordenador %}
+                            <i class="fas fa-user-cog"></i>&nbsp;Coordenador
+                        {% else %}
+                            <i class="fas fa-plus"></i>&nbsp;Administrador
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</section>
+{% endblock %}

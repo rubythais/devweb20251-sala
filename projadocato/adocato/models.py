@@ -84,6 +84,11 @@ class Adotante(User):
             erros['username']="O nome de usuário deve ter pelo menos 3 caracteres."
         if len(self.password) < 6:
             erros['password']="A senha deve ter pelo menos 6 caracteres."
+        usuario=User.objects.filter(username=self.username).first()
+        if usuario and usuario.id != self.id:
+            erros['username']="O nome de usuário já está em uso."
+        if self.email and User.objects.filter(email=self.email).exclude(id=self.id).exists():
+            erros['email']="O email já está em uso."
         if len(self.nome) < 3:
             erros['nome']="O nome do adotante deve ter pelo menos 3 caracteres."
         if len(self.cpf) != 11 or not self.cpf.isdigit():
@@ -128,6 +133,11 @@ class Coordenador(User):
         erros={}
         if len(self.username) < 3:
             erros['username']="O nome de usuário deve ter pelo menos 3 caracteres."
+        usuario=User.objects.filter(username=self.username).first()
+        if usuario and usuario.id != self.id:
+            erros['username']="O nome de usuário já está em uso."
+        if self.email and User.objects.filter(email=self.email).exclude(id=self.id).exists():
+            erros['email']="O email já está em uso."
         if len(self.password) < 6:
             erros['password']="A senha deve ter pelo menos 6 caracteres."
         if len(self.nome) < 3:

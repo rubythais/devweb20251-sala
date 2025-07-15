@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("adocato/",include("adocato.urls")),
+    path("accounts/", include("django.contrib.auth.urls")),  # URLs for login, logout, password management
 ]
 
 if settings.DEBUG:
