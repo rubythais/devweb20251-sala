@@ -16,6 +16,7 @@ from django.contrib.auth import authenticate, login,logout
 def eh_adotante(user):
     """Verifica se o usuário é um adotante."""
     adotante = CasoUsoAdotante.buscar_adotante_por_id(user.id)
+   
     return adotante is not None
 
 def eh_coordenador(user):
@@ -31,8 +32,11 @@ def index(request):
 
     return render(request, 'adocato/index.html')
 
-@user_passes_test(eh_coordenador)
+#@user_passes_test(eh_coordenador)
 def salvar_gato(request, gato_id=None):
+    if not eh_coordenador(request.user):
+        GerenciadorMensagens.processar_erros_validacao(request, ValidationError("Você não é um coordenador."))
+        return redirect('adocato:login')
     """Salva um gato no banco de dados."""
     if request.method == 'GET':
         if gato_id:
