@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'adocato/base.html' %}
 
 {% block content %}
 <h1 class="title is-3">Lista de Raças</h1>
@@ -18,14 +18,12 @@
         <thead>
             <tr>
                 <th>Nome da Raça</th>
-                <th>Descrição</th>
             </tr>
         </thead>
         <tbody>
             {% for raca in racas %}
                 <tr>
                     <td>{{ raca.nome }}</td>
-                    <td>{{ raca.descricao }}</td>
                 </tr>
             {% empty %}
                 <tr>

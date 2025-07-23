@@ -13,6 +13,7 @@ class GerenciadorSessaoUsuario:
                 'tipo_usuario': 'anonimo',
                 'eh_adotante': False,
                 'eh_coordenador': False,
+                'eh_administrador': False,
                 'usuario_nome': None,
                 'usuario_id': None
             }
@@ -33,6 +34,7 @@ class GerenciadorSessaoUsuario:
                 'tipo_usuario': 'adotante',
                 'eh_adotante': True,
                 'eh_coordenador': False,
+                'eh_administrador': False,
                 'usuario_nome': adotante.nome,
                 'usuario_id': adotante.id,
                 'usuario_email': adotante.email,
@@ -46,6 +48,7 @@ class GerenciadorSessaoUsuario:
                     'tipo_usuario': 'coordenador',
                     'eh_adotante': False,
                     'eh_coordenador': True,
+                    'eh_administrador': False,
                     'usuario_nome': coordenador.nome,
                     'usuario_id': coordenador.id,
                     'usuario_email': coordenador.email,
@@ -57,6 +60,7 @@ class GerenciadorSessaoUsuario:
                     'tipo_usuario': 'Administrador',
                     'eh_adotante': False,
                     'eh_coordenador': False,
+                    'eh_administrador': True,
                     'usuario_nome': request.user.username,
                     'usuario_id': request.user.id,
                     'usuario_email': request.user.email,

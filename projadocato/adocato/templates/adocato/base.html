@@ -31,6 +31,9 @@
                     {%if eh_coordenador or eh_adotante %}
                         <a class="navbar-item" href="#">Solicitação</a>
                     {% endif %}
+                    {% if eh_coordenador or eh_administrador %}
+                        <a class="navbar-item" href="{% url 'admin:index' %}">Administração</a>
+                    {% endif %}
                 </div>
                 <div class="navbar-end">
                     <div class="navbar-item">
