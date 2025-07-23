@@ -7,6 +7,7 @@ class RacaListView(PerfilCoordenadorMixin, ListView):
     
     template_name = 'adocato/raca/lista.html'
     context_object_name = 'racas'
+    paginate_by = 2  # Define o número de raças por página
     
     def get_queryset(self):
         raca_nome = self.request.GET.get('raca')

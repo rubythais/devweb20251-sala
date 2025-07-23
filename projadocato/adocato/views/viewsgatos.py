@@ -208,6 +208,8 @@ class ListarGatosView(ListView):
     # Nome da variável que conterá a lista no template
     # Sem isso, seria 'object_list' (nome padrão do Django)
     context_object_name = 'gatos'
+
+    paginate_by = 2  # Define o número de gatos por página
     
     def get_queryset(self):
         """
