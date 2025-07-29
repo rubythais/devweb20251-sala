@@ -2,50 +2,123 @@
 {% block title %}Perfil do Usuário - Adocato{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container">
-        <h1 class="title">Perfil do Usuário</h1>
-        
+<div class="columns is-centered">
+    <div class="column is-8">
         <div class="box">
-            <h2 class="subtitle">Informações Pessoais</h2>
-            
-            <div class="field">
-                <label class="label">Nome:</label>
-                <div class="control">
-                    <input class="input" type="text" value="{{ usuario_nome }}" readonly>
+            <div class="level">
+                <div class="level-left">
+                    <h1 class="title">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-user-circle"></i>
+                            </span>
+                            <span>Meu Perfil</span>
+                        </span>
+                    </h1>
+                </div>
+                <div class="level-right">
+                    {% if eh_adotante %}
+                        <a href="{% url 'adocato:adotante_perfil_edit' %}" class="button is-primary">
+                            <span class="icon">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            <span>Editar Perfil</span>
+                        </a>
+                    {% elif eh_coordenador %}
+                        <a href="{% url 'adocato:coordenador_perfil_edit' %}" class="button is-primary">
+                            <span class="icon">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            <span>Editar Perfil</span>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             
-            <div class="field">
-                <label class="label">Username:</label>
-                <div class="control">
-                    <input class="input" type="text" value="{{ usuario_username }}" readonly>
-                </div>
-            </div>
-            
-            <div class="field">
-                <label class="label">Email:</label>
-                <div class="control">
-                    <input class="input" type="email" value="{{ usuario_email }}" readonly>
-                </div>
-            </div>
-            
-            <div class="field">
-                <label class="label">Tipo de Usuário:</label>
-                <div class="control">
-                    <span class="tag is-primary is-medium">
-                        {% if eh_adotante %}
-                            <i class="fas fa-heart"></i>&nbsp;Adotante
-                        {% elif eh_coordenador %}
-                            <i class="fas fa-user-cog"></i>&nbsp;Coordenador
-                        {% else %}
-                            <i class="fas fa-plus"></i>&nbsp;Administrador
+            <div class="content">
+                <div class="columns">
+                    <div class="column is-8">
+                        <div class="field">
+                            <label class="label">Nome:</label>
+                            <div class="control">
+                                <input class="input" type="text" value="{{ usuario_nome }}" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label">Username:</label>
+                            <div class="control">
+                                <input class="input" type="text" value="{{ usuario_username }}" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label">Email:</label>
+                            <div class="control">
+                                <input class="input" type="email" value="{{ usuario_email|default:'Não informado' }}" readonly>
+                            </div>
+                        </div>
+                        
+                        {% if eh_adotante and usuario_telefone %}
+                        <div class="field">
+                            <label class="label">Telefone:</label>
+                            <div class="control">
+                                <input class="input" type="text" value="{{ usuario_telefone }}" readonly>
+                            </div>
+                        </div>
                         {% endif %}
-                    </span>
+                        
+                        {% if eh_adotante and usuario_cidade %}
+                        <div class="field">
+                            <label class="label">Cidade/Estado:</label>
+                            <div class="control">
+                                <input class="input" type="text" value="{{ usuario_cidade }}{% if usuario_estado %}/{{ usuario_estado }}{% endif %}" readonly>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if eh_adotante and usuario_data_nascimento %}
+                        <div class="field">
+                            <label class="label">Data de Nascimento:</label>
+                            <div class="control">
+                                <input class="input" type="text" value="{{ usuario_data_nascimento|date:'d/m/Y' }}" readonly>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="column is-4">
+                        <div class="box has-background-primary-light">
+                            <div class="has-text-centered">
+                                <div class="field">
+                                    <label class="label">Tipo de Usuário:</label>
+                                    <div class="control">
+                                        <span class="tag is-primary is-large">
+                                            {% if eh_adotante %}
+                                                <i class="fas fa-heart"></i>&nbsp;Adotante
+                                            {% elif eh_coordenador %}
+                                                <i class="fas fa-user-cog"></i>&nbsp;Coordenador
+                                            {% else %}
+                                                <i class="fas fa-crown"></i>&nbsp;Administrador
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                {% if usuario_cpf %}
+                                <div class="field">
+                                    <label class="label">CPF:</label>
+                                    <div class="control">
+                                        <span class="has-text-weight-bold">{{ usuario_cpf }}</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
     </div>
-</section>
+</div>
 {% endblock %}

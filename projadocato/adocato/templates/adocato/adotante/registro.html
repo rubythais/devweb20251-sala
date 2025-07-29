@@ -1,6 +1,6 @@
 {% extends 'adocato/base.html' %}
 
-{% block title %}Cadastro de Coordenador{% endblock %}
+{% block title %}Cadastro de Adotante{% endblock %}
 
 {% block content %}
 <div class="columns is-centered">
@@ -9,17 +9,17 @@
             <h4 class="title is-4">
                 <span class="icon-text">
                     <span class="icon">
-                        <i class="fas fa-user-tie"></i>
+                        <i class="fas fa-user-plus"></i>
                     </span>
-                    <span>Cadastro de Coordenador</span>
+                    <span>Cadastro de Adotante</span>
                 </span>
             </h4>
             
             <p class="subtitle is-6 has-text-grey">
-                Apenas administradores podem cadastrar coordenadores
+                Crie sua conta para adotar um gatinho!
             </p>
 
-            <form method="post" action="{% url 'adocato:coordenador_cadastro' %}">
+            <form method="post" action="{% url 'adocato:cadastrar_adotante' %}">
                 {% csrf_token %}
                 
                 <div class="columns">
@@ -131,6 +131,76 @@
                     </div>
                 </div>
 
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">{{ form.data_nascimento.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.data_nascimento }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-calendar"></i>
+                                </span>
+                            </div>
+                            {% if form.data_nascimento.errors %}
+                                {% for error in form.data_nascimento.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">{{ form.telefone.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.telefone }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                            </div>
+                            <p class="help">Digite apenas números (opcional)</p>
+                            {% if form.telefone.errors %}
+                                {% for error in form.telefone.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="columns">
+                    <div class="column is-8">
+                        <div class="field">
+                            <label class="label">{{ form.cidade.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.cidade }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </span>
+                            </div>
+                            {% if form.cidade.errors %}
+                                {% for error in form.cidade.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="column is-4">
+                        <div class="field">
+                            <label class="label">{{ form.estado.label }}</label>
+                            <div class="control">
+                                {{ form.estado }}
+                            </div>
+                            {% if form.estado.errors %}
+                                {% for error in form.estado.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
                 {% if form.non_field_errors %}
                     <div class="notification is-danger">
                         {% for error in form.non_field_errors %}
@@ -141,11 +211,11 @@
 
                 <div class="field is-grouped is-grouped-right">
                     <div class="control">
-                        <a href="{% url 'adocato:listar_coordenadores' %}" class="button">
+                        <a href="{% url 'adocato:login' %}" class="button">
                             <span class="icon">
                                 <i class="fas fa-arrow-left"></i>
                             </span>
-                            <span>Cancelar</span>
+                            <span>Voltar ao Login</span>
                         </a>
                     </div>
                     <div class="control">
@@ -153,7 +223,7 @@
                             <span class="icon">
                                 <i class="fas fa-save"></i>
                             </span>
-                            <span>Cadastrar Coordenador</span>
+                            <span>Cadastrar</span>
                         </button>
                     </div>
                 </div>

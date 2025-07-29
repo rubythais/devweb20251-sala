@@ -1,36 +1,74 @@
 {% extends 'adocato/base.html' %}
 
+{% block title %}Login - Adocato{% endblock %}
+
 {% block content %}
-<section class="section">
-    <div class="container">
-        <div class="columns is-centered">
-            <div class="column is-4">
-                <h1 class="title has-text-centered">Login</h1>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="field">
-                        <label class="label">Usuário</label>
-                        <div class="control">
-                            <input class="input" type="text" name="username" placeholder="Digite seu usuário" required>
-                        </div>
+<div class="columns is-centered">
+    <div class="column is-4">
+        <div class="box">
+            <h1 class="title has-text-centered">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </span>
+                    <span>Login</span>
+                </span>
+            </h1>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <label class="label">Usuário</label>
+                    <div class="control has-icons-left">
+                        <input class="input" type="text" name="username" placeholder="Digite seu usuário" required>
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-user"></i>
+                        </span>
                     </div>
-                    <div class="field">
-                        <label class="label">Senha</label>
-                        <div class="control">
-                            <input class="input" type="password" name="password" placeholder="Digite sua senha" required>
-                        </div>
+                </div>
+                
+                <div class="field">
+                    <label class="label">Senha</label>
+                    <div class="control has-icons-left">
+                        <input class="input" type="password" name="password" placeholder="Digite sua senha" required>
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-lock"></i>
+                        </span>
                     </div>
-                    <div class="field">
-                        <div class="control">
-                            <button class="button is-primary is-fullwidth" type="submit">Entrar</button>
-                        </div>
+                </div>
+                
+                <div class="field">
+                    <div class="control">
+                        <button class="button is-primary is-fullwidth" type="submit">
+                            <span class="icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </span>
+                            <span>Entrar</span>
+                        </button>
                     </div>
-                    {% if form.errors %}
-                        <p class="help is-danger">Usuário ou senha inválidos.</p>
-                    {% endif %}
-                </form>
+                </div>
+                
+                {% if form.errors %}
+                    <div class="notification is-danger">
+                        <p>Usuário ou senha inválidos.</p>
+                    </div>
+                {% endif %}
+            </form>
+            
+            <hr>
+            
+            <div class="has-text-centered">
+                <p class="is-size-6 has-text-grey">
+                    Não tem uma conta ainda?
+                </p>
+                <a href="{% url 'adocato:cadastrar_adotante' %}" class="button is-link is-outlined is-fullwidth mt-3">
+                    <span class="icon">
+                        <i class="fas fa-user-plus"></i>
+                    </span>
+                    <span>Cadastre-se como Adotante</span>
+                </a>
             </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}
