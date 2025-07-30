@@ -1,0 +1,16 @@
+{% extends "adocato/base.html" %}
+
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">{{ titulo }}</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>De:</strong> {{ remetente }}</p>
+        <hr>
+        <div class="mensagem-email">
+            {{ mensagem|linebreaksbr }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -58,7 +58,7 @@ class AdotanteRegistroView(View):
                 if user:
                     login(request, user)
                     GerenciadorSessaoUsuario.determinar_tipo_usuario(request)
-                    GerenciadorMensagens.adicionar_sucesso(
+                    GerenciadorMensagens.processar_mensagem(
                         request, 
                         f"Bem-vindo(a), {adotante.nome}! Seu cadastro foi realizado com sucesso."
                     )
@@ -67,10 +67,7 @@ class AdotanteRegistroView(View):
             except ValidationError as e:
                 GerenciadorMensagens.processar_erros_validacao(request, e)
             except Exception as e:
-                GerenciadorMensagens.adicionar_erro(
-                    request, 
-                    f"Erro ao cadastrar adotante: {str(e)}"
-                )
+                GerenciadorMensagens.processar_erros_validacao(request, ValidationError(f"Erro ao cadastrar adotante: {str(e)}"))
         
         return render(request, self.template_name, {'form': form})
 
@@ -78,14 +75,14 @@ class AdotanteRegistroView(View):
 class AdotantePerfilEditView(LoginRequiredMixin, PerfilAdotanteMixin, View):
     """View para edição do perfil do adotante."""
     
-    template_name = 'adocato/adotante/perfil_edit.html'
+    template_name = 'adocato/adotante/edit.html'
     
     def get(self, request):
         """Exibe o formulário de edição do perfil."""
         adotante = CasoUsoAdotante.buscar_adotante_por_id(request.user.id)
         
         if not adotante:
-            GerenciadorMensagens.adicionar_erro(request, "Adotante não encontrado.")
+            GerenciadorMensagens.processar_erros_validacao(request, ValidationError("Adotante não encontrado."))
             return redirect('adocato:index')
         
         # Preenche o formulário com os dados atuais
@@ -108,7 +105,7 @@ class AdotantePerfilEditView(LoginRequiredMixin, PerfilAdotanteMixin, View):
         adotante = CasoUsoAdotante.buscar_adotante_por_id(request.user.id)
         
         if not adotante:
-            GerenciadorMensagens.adicionar_erro(request, "Adotante não encontrado.")
+            GerenciadorMensagens.processar_erros_validacao(request, ValidationError("Adotante não encontrado."))
             return redirect('adocato:index')
         
         form = AdotantePerfilForm(request.POST)
@@ -124,9 +121,9 @@ class AdotantePerfilEditView(LoginRequiredMixin, PerfilAdotanteMixin, View):
                     estado=form.cleaned_data.get('estado'),
                     email=form.cleaned_data.get('email')
                 )
-                
-                GerenciadorMensagens.adicionar_sucesso(
-                    request, 
+
+                GerenciadorMensagens.processar_mensagem(
+                    request,
                     "Perfil atualizado com sucesso!"
                 )
                 return redirect('adocato:perfil')
@@ -134,11 +131,8 @@ class AdotantePerfilEditView(LoginRequiredMixin, PerfilAdotanteMixin, View):
             except ValidationError as e:
                 GerenciadorMensagens.processar_erros_validacao(request, e)
             except Exception as e:
-                GerenciadorMensagens.adicionar_erro(
-                    request, 
-                    f"Erro ao atualizar perfil: {str(e)}"
-                )
-        
+                GerenciadorMensagens.processar_erros_validacao(request, ValidationError(f"Erro ao atualizar perfil: {str(e)}"))
+
         return render(request, self.template_name, {
             'form': form,
             'adotante': adotante

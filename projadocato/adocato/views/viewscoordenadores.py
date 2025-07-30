@@ -35,18 +35,18 @@ class CoordenadorCadastroView(LoginRequiredMixin, PerfilAdministradorMixin, View
                     email=form.cleaned_data.get('email')
                 )
                 
-                GerenciadorMensagens.adicionar_sucesso(
+                GerenciadorMensagens.processar_mensagem(
                     request, 
-                    f"Coordenador {coordenador.nome} cadastrado com sucesso!"
+                    ValidationError(f"Coordenador {coordenador.nome} cadastrado com sucesso!")
                 )
                 return redirect('adocato:listar_coordenadores')
                 
             except ValidationError as e:
                 GerenciadorMensagens.processar_erros_validacao(request, e)
             except Exception as e:
-                GerenciadorMensagens.adicionar_erro(
+                GerenciadorMensagens.processar_erros_validacao(
                     request, 
-                    f"Erro ao cadastrar coordenador: {str(e)}"
+                    ValidationError(f"Erro ao cadastrar coordenador: {str(e)}")
                 )
         
         return render(request, self.template_name, {'form': form})
@@ -62,7 +62,7 @@ class CoordenadorEditView(LoginRequiredMixin, PerfilAdministradorMixin, View):
         coordenador = CasoUsoCoordenador.buscar_coordenador_por_id(coordenador_id)
         
         if not coordenador:
-            GerenciadorMensagens.adicionar_erro(request, "Coordenador não encontrado.")
+            GerenciadorMensagens.processar_erros_validacao(request, ValidationError("Coordenador não encontrado."))
             return redirect('adocato:listar_coordenadores')
         
         # Preenche o formulário com os dados atuais
@@ -84,7 +84,7 @@ class CoordenadorEditView(LoginRequiredMixin, PerfilAdministradorMixin, View):
         coordenador = CasoUsoCoordenador.buscar_coordenador_por_id(coordenador_id)
         
         if not coordenador:
-            GerenciadorMensagens.adicionar_erro(request, "Coordenador não encontrado.")
+            GerenciadorMensagens.processar_erros_validacao(request, ValidationError("Coordenador não encontrado."))
             return redirect('adocato:listar_coordenadores')
         
         form = CoordenadorForm(request.POST, is_edit=True)
@@ -100,9 +100,9 @@ class CoordenadorEditView(LoginRequiredMixin, PerfilAdministradorMixin, View):
                     cpf=form.cleaned_data['cpf'],
                     password=form.cleaned_data.get('password') if form.cleaned_data.get('password') else None
                 )
-                
-                GerenciadorMensagens.adicionar_sucesso(
-                    request, 
+
+                GerenciadorMensagens.processar_mensagem(
+                    request,
                     f"Coordenador {coordenador.nome} atualizado com sucesso!"
                 )
                 return redirect('adocato:listar_coordenadores')
@@ -110,9 +110,9 @@ class CoordenadorEditView(LoginRequiredMixin, PerfilAdministradorMixin, View):
             except ValidationError as e:
                 GerenciadorMensagens.processar_erros_validacao(request, e)
             except Exception as e:
-                GerenciadorMensagens.adicionar_erro(
+                GerenciadorMensagens.processar_erros_validacao(
                     request, 
-                    f"Erro ao atualizar coordenador: {str(e)}"
+                    ValidationError(f"Erro ao atualizar coordenador: {str(e)}")
                 )
         
         return render(request, self.template_name, {
@@ -131,7 +131,7 @@ class CoordenadorPerfilEditView(LoginRequiredMixin, PerfilCoordenadorMixin, View
         coordenador = CasoUsoCoordenador.buscar_coordenador_por_id(request.user.id)
         
         if not coordenador:
-            GerenciadorMensagens.adicionar_erro(request, "Coordenador não encontrado.")
+            GerenciadorMensagens.processar_erros_validacao(request, ValidationError("Coordenador não encontrado."))
             return redirect('adocato:index')
         
         # Preenche o formulário com os dados atuais
@@ -151,7 +151,7 @@ class CoordenadorPerfilEditView(LoginRequiredMixin, PerfilCoordenadorMixin, View
         coordenador = CasoUsoCoordenador.buscar_coordenador_por_id(request.user.id)
         
         if not coordenador:
-            GerenciadorMensagens.adicionar_erro(request, "Coordenador não encontrado.")
+            GerenciadorMensagens.processar_erros_validacao(request, ValidationError("Coordenador não encontrado."))
             return redirect('adocato:index')
         
         form = CoordenadorPerfilForm(request.POST)
@@ -165,7 +165,7 @@ class CoordenadorPerfilEditView(LoginRequiredMixin, PerfilCoordenadorMixin, View
                     email=form.cleaned_data.get('email')
                 )
                 
-                GerenciadorMensagens.adicionar_sucesso(
+                GerenciadorMensagens.processar_mensagem(
                     request, 
                     "Perfil atualizado com sucesso!"
                 )
@@ -174,9 +174,9 @@ class CoordenadorPerfilEditView(LoginRequiredMixin, PerfilCoordenadorMixin, View
             except ValidationError as e:
                 GerenciadorMensagens.processar_erros_validacao(request, e)
             except Exception as e:
-                GerenciadorMensagens.adicionar_erro(
+                GerenciadorMensagens.processar_erros_validacao(
                     request, 
-                    f"Erro ao atualizar perfil: {str(e)}"
+                    ValidationError(f"Erro ao atualizar perfil: {str(e)}")
                 )
         
         return render(request, self.template_name, {

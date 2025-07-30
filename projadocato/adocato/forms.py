@@ -334,3 +334,42 @@ class CustomAuthenticationForm(AuthenticationForm):
             'class': 'input',
             'placeholder': 'Digite sua senha'
         })
+
+class ContatoForm(forms.Form):
+    
+    titulo = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'input',
+            'placeholder': 'Digite o título da mensagem'
+        }),
+        label='Título'
+    )
+
+    remetente = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'input',
+            'placeholder': 'Digite seu e-mail'
+        }),
+        label='E-mail'
+    )
+    
+    mensagem = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'textarea',
+            'placeholder': 'Digite sua mensagem'
+        }),
+        label='Mensagem'
+    )
+        
+    def clean_titulo(self):
+        titulo = self.cleaned_data.get('titulo')
+        if titulo and len(titulo) < 3:
+            raise ValidationError("O título deve ter pelo menos 3 caracteres.")
+        return titulo
+    
+    def clean_mensagem(self):
+        mensagem = self.cleaned_data.get('mensagem')
+        if mensagem and len(mensagem) < 30:
+            raise ValidationError("A mensagem deve ter pelo menos 30 caracteres.")
+        return mensagem

@@ -24,7 +24,7 @@ from adocato.views.viewscoordenadores import (
     CoordenadorListView
 )
 
-from adocato.views.viewindex import IndexView
+from adocato.views.viewindex import (IndexView,ContatoFormView)
 
 app_name = "adocato"
 urlpatterns = [
@@ -44,6 +44,9 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("perfil/", PerfilUsuarioView.as_view(), name="perfil"),
+
+    #Urls de Contato
+    path("suporte/contato/", ContatoFormView.as_view(), name="contato"),
     
     # URLs dos Adotantes
     path("adotante/registro/", AdotanteRegistroView.as_view(), name="cadastrar_adotante"),
