@@ -211,7 +211,7 @@ class CasoUsoSolicitacao:
         
         solicitacao.save()
         return solicitacao, avaliacao
-    
+    @transaction.atomic
     @staticmethod
     def impetrar_recurso(solicitacao_id, motivo_recurso):
         """
@@ -237,6 +237,7 @@ class CasoUsoSolicitacao:
         
         solicitacao.recurso = motivo_recurso
         solicitacao.status = 'Em_Recurso'
+        solicitacao.gato.disponivel = False  # Gato fica indisponível durante o recurso
         
         try:
             solicitacao.full_clean()

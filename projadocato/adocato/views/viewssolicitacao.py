@@ -130,7 +130,7 @@ class EditarSolicitacaoView(LoginRequiredMixin, PerfilAdotanteMixin, View):
                 return redirect('adocato:minhas_solicitacoes')
             
             # Verificar se pode ser editada
-            if solicitacao.status not in ['Em_Edicao', 'Reprovado']:
+            if solicitacao.status not in ['Em_Edicao', 'Reprovado', 'Em_Recurso']:
                 GerenciadorMensagens.processar_erros_validacao(
                     request, 
                     ValidationError("Esta solicitação não pode ser editada.")
@@ -145,7 +145,8 @@ class EditarSolicitacaoView(LoginRequiredMixin, PerfilAdotanteMixin, View):
                 'gato': solicitacao.gato,
                 'pode_editar': True,
                 'documentos': documentos,
-                'documento_form': DocumentoForm()
+                'documento_form': DocumentoForm(),
+                'form_recurso': RecursoForm(initial={'motivo': solicitacao.recurso or ''})
             }
             
             return render(request, self.template_name, context)
@@ -166,7 +167,7 @@ class EditarSolicitacaoView(LoginRequiredMixin, PerfilAdotanteMixin, View):
                 return redirect('adocato:minhas_solicitacoes')
             
             # Verificar se pode ser editada
-            if solicitacao.status not in ['Em_Edicao', 'Reprovado']:
+            if solicitacao.status not in ['Em_Edicao', 'Reprovado', 'Em_Recurso']:
                 GerenciadorMensagens.processar_erros_validacao(
                     request, 
                     ValidationError("Esta solicitação não pode ser editada.")
@@ -181,15 +182,27 @@ class EditarSolicitacaoView(LoginRequiredMixin, PerfilAdotanteMixin, View):
             if 'acao' in request.POST and request.POST['acao'] == 'remover_documento':
                 return self._processar_remover_documento(request, solicitacao)
             
-   
+            # Verificar se é atualização de recurso
+            if 'acao' in request.POST and request.POST['acao'] == 'atualizar_recurso':
+                return self._processar_atualizar_recurso(request, solicitacao)
             
-            # Enviar para avaliação se solicitado
+            # Verificar se é envio de recurso
+            if 'acao' in request.POST and request.POST['acao'] == 'enviar_recurso':
+                return self._processar_enviar_recurso(request, solicitacao)
+            
+            # Enviar para avaliação se solicitado (apenas para Em_Edicao)
             if 'acao' in request.POST and request.POST['acao'] == 'enviar':
-                CasoUsoSolicitacao.enviar_solicitacao(solicitacao_id)
-                GerenciadorMensagens.processar_mensagem(
-                    request, 
-                    "Solicitação enviada para avaliação com sucesso!"
-                )
+                if solicitacao.status == 'Em_Edicao':
+                    CasoUsoSolicitacao.enviar_solicitacao(solicitacao_id)
+                    GerenciadorMensagens.processar_mensagem(
+                        request, 
+                        "Solicitação enviada para avaliação com sucesso!"
+                    )
+                else:
+                    GerenciadorMensagens.processar_erros_validacao(
+                        request,
+                        ValidationError("Apenas solicitações em edição podem ser enviadas.")
+                    )
             else:
                 GerenciadorMensagens.processar_mensagem(
                     request, 
@@ -292,6 +305,68 @@ class EditarSolicitacaoView(LoginRequiredMixin, PerfilAdotanteMixin, View):
         except Exception as e:
             GerenciadorMensagens.processar_erros_validacao(request, ValidationError(str(e)))
             return redirect('adocato:editar_solicitacao', solicitacao_id=solicitacao.id)
+    
+    def _processar_atualizar_recurso(self, request, solicitacao):
+        """Processa a atualização do recurso."""
+        try:
+            # Verificar se a solicitação está em status correto
+            if solicitacao.status != 'Em_Recurso':
+                GerenciadorMensagens.processar_erros_validacao(
+                    request, 
+                    ValidationError("Recurso só pode ser editado em solicitações com status Em_Recurso.")
+                )
+                return redirect('adocato:editar_solicitacao', solicitacao_id=solicitacao.id)
+            
+            # Validar formulário
+            form = RecursoForm(request.POST)
+            if form.is_valid():
+                motivo = form.cleaned_data['motivo']
+                
+                # Atualizar recurso via serviço
+                CasoUsoSolicitacao.atualizar_recurso(solicitacao.id, motivo)
+                
+                GerenciadorMensagens.processar_mensagem(
+                    request, 
+                    "Recurso atualizado com sucesso!"
+                )
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        GerenciadorMensagens.processar_erros_validacao(
+                            request, 
+                            ValidationError(f"{field}: {error}")
+                        )
+            
+            return redirect('adocato:editar_solicitacao', solicitacao_id=solicitacao.id)
+            
+        except Exception as e:
+            GerenciadorMensagens.processar_erros_validacao(request, ValidationError(str(e)))
+            return redirect('adocato:editar_solicitacao', solicitacao_id=solicitacao.id)
+    
+    def _processar_enviar_recurso(self, request, solicitacao):
+        """Processa o envio do recurso para análise."""
+        try:
+            # Verificar se a solicitação está em status correto
+            if solicitacao.status != 'Em_Recurso':
+                GerenciadorMensagens.processar_erros_validacao(
+                    request, 
+                    ValidationError("Recurso só pode ser enviado em solicitações com status Em_Recurso.")
+                )
+                return redirect('adocato:editar_solicitacao', solicitacao_id=solicitacao.id)
+            
+            # Enviar recurso via serviço
+            CasoUsoSolicitacao.enviar_recurso(solicitacao.id)
+            
+            GerenciadorMensagens.processar_mensagem(
+                request, 
+                "Recurso enviado para análise com sucesso!"
+            )
+            
+            return redirect('adocato:minhas_solicitacoes')
+            
+        except Exception as e:
+            GerenciadorMensagens.processar_erros_validacao(request, ValidationError(str(e)))
+            return redirect('adocato:editar_solicitacao', solicitacao_id=solicitacao.id)
 
 
 class MinhasSolicitacoesView(LoginRequiredMixin, PerfilAdotanteMixin, ListView):
@@ -338,7 +413,7 @@ class ImpetrarRecursoView(LoginRequiredMixin, PerfilAdotanteMixin, View):
         try:
             # Buscar a solicitação via serviço
             solicitacao = CasoUsoSolicitacao.buscar_solicitacao_por_id(solicitacao_id)
-            if not solicitacao or solicitacao.adotante_id != request.user.id or solicitacao.status != 'Reprovada':
+            if not solicitacao or solicitacao.adotante_id != request.user.id or solicitacao.status != 'Reprovado':
                 GerenciadorMensagens.processar_erros_validacao(
                     request, 
                     ValidationError("Solicitação não encontrada ou não pode ter recurso impetrado.")
@@ -476,7 +551,7 @@ class AvaliarSolicitacaoView(LoginRequiredMixin, PerfilCoordenadorMixin, View):
                 decisao = form.cleaned_data['decisao']
                 
                 # Determinar status baseado na decisão
-                novo_status = 'Aprovada' if decisao == 'aprovar' else 'Reprovada'
+                novo_status = 'Aprovado' if decisao == 'aprovar' else 'Reprovado'
                 
                 # Avaliar solicitação via serviço
                 CasoUsoSolicitacao.avaliar_solicitacao(
