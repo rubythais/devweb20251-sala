@@ -1,0 +1,235 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Minhas Solicitações{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="level">
+            <div class="level-left">
+                <h1 class="title">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fas fa-heart"></i>
+                        </span>
+                        <span>Minhas Solicitações de Adoção</span>
+                    </span>
+                </h1>
+            </div>
+            <div class="level-right">
+                <a href="{% url 'adocato:gatos_disponiveis' %}" class="button is-primary">
+                    <span class="icon">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span>Nova Solicitação</span>
+                </a>
+            </div>
+        </div>
+
+        {% if solicitacoes %}
+            {% for solicitacao in solicitacoes %}
+                <div class="box">
+                    <div class="media">
+                        <div class="media-left">
+                            {% if solicitacao.gato.foto %}
+                                <figure class="image is-96x96">
+                                    <img src="{{ solicitacao.gato.foto.url }}" alt="{{ solicitacao.gato.nome }}" class="is-rounded">
+                                </figure>
+                            {% else %}
+                                <figure class="image is-96x96">
+                                    <div class="has-background-grey-light is-flex is-justify-content-center is-align-items-center" style="height: 100%;">
+                                        <span class="icon has-text-grey">
+                                            <i class="fas fa-cat fa-2x"></i>
+                                        </span>
+                                    </div>
+                                </figure>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="media-content">
+                            <div class="content">
+                                <div class="level">
+                                    <div class="level-left">
+                                        <div>
+                                            <h4 class="title is-5">{{ solicitacao.gato.nome }}</h4>
+                                            <p class="subtitle is-6">{{ solicitacao.gato.raca.nome }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="level-right">
+                                        <span class="tag is-medium
+                                            {% if solicitacao.status == 'Em_Edicao' %}is-info
+                                            {% elif solicitacao.status == 'Em_Analise' %}is-warning
+                                            {% elif solicitacao.status == 'Aprovada' %}is-success
+                                            {% elif solicitacao.status == 'Reprovada' %}is-danger
+                                            {% elif solicitacao.status == 'Em_Recurso' %}is-link
+                                            {% endif %}">
+                                            {{ solicitacao.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <p>
+                                    <strong>Solicitada em:</strong> {{ solicitacao.dataSolicitacao|date:"d/m/Y H:i" }}
+                                </p>
+                                
+                                <div class="tags">
+                                    <span class="tag">{{ solicitacao.gato.idade }} ano{{ solicitacao.gato.idade|pluralize:"s" }}</span>
+                                    <span class="tag">{{ solicitacao.gato.cor }}</span>
+                                    <span class="tag">{{ solicitacao.gato.get_sexo_display }}</span>
+                                    {% if solicitacao.esta_atrasado %}
+                                        <span class="tag is-warning">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            Em atraso
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if solicitacao.status == 'Reprovada' and not solicitacao.recurso %}
+                                    <div class="notification is-danger is-light">
+                                        <p><strong>Solicitação reprovada.</strong> Você pode impetrar um recurso caso discorde da decisão.</p>
+                                    </div>
+                                {% elif solicitacao.status == 'Aprovada' %}
+                                    <div class="notification is-success is-light">
+                                        <p><strong>Parabéns!</strong> Sua solicitação foi aprovada. Entre em contato conosco para finalizar a adoção.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="field is-grouped">
+                                {% if solicitacao.status in 'Em_Edicao,Em_Recurso' %}
+                                    <div class="control">
+                                        <a href="{% url 'adocato:editar_solicitacao' solicitacao.id %}" class="button is-primary">
+                                            <span class="icon">
+                                                <i class="fas fa-edit"></i>
+                                            </span>
+                                            <span>Editar</span>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if solicitacao.status == 'Reprovada' and not solicitacao.recurso %}
+                                    <div class="control">
+                                        <button class="button is-warning js-modal-trigger" data-target="modal-recurso-{{ solicitacao.id }}">
+                                            <span class="icon">
+                                                <i class="fas fa-balance-scale"></i>
+                                            </span>
+                                            <span>Impetrar Recurso</span>
+                                        </button>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="control">
+                                    <a href="{% url 'adocato:gato_detalhes' solicitacao.gato.id %}" class="button is-light">
+                                        <span class="icon">
+                                            <i class="fas fa-eye"></i>
+                                        </span>
+                                        <span>Ver Gato</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal para recurso -->
+                {% if solicitacao.status == 'Reprovada' and not solicitacao.recurso %}
+                    <div id="modal-recurso-{{ solicitacao.id }}" class="modal">
+                        <div class="modal-background"></div>
+                        <div class="modal-card">
+                            <header class="modal-card-head">
+                                <p class="modal-card-title">Impetrar Recurso - {{ solicitacao.gato.nome }}</p>
+                                <button class="delete" aria-label="close" onclick="closeModal('modal-recurso-{{ solicitacao.id }}')"></button>
+                            </header>
+                            <form method="post" action="{% url 'adocato:impetrar_recurso' solicitacao.id %}">
+                                <section class="modal-card-body">
+                                    {% csrf_token %}
+                                    <div class="field">
+                                        <label class="label">Motivo do Recurso</label>
+                                        <div class="control">
+                                            <textarea class="textarea" name="motivo" placeholder="Descreva detalhadamente os motivos do seu recurso (mínimo 10 caracteres)" rows="4" required></textarea>
+                                        </div>
+                                        <p class="help">Explique por que você discorda da decisão e forneça informações adicionais relevantes.</p>
+                                    </div>
+                                </section>
+                                <footer class="modal-card-foot">
+                                    <button type="submit" class="button is-warning">Enviar Recurso</button>
+                                    <button type="button" class="button" onclick="closeModal('modal-recurso-{{ solicitacao.id }}')">Cancelar</button>
+                                </footer>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Paginação -->
+            {% if is_paginated %}
+                <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="pagination-previous">Primeira</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="pagination-previous">Anterior</a>
+                    {% endif %}
+                    
+                    <ul class="pagination-list">
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li><a class="pagination-link is-current">{{ num }}</a></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li><a href="?page={{ num }}" class="pagination-link">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="pagination-next">Próxima</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-next">Última</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+
+        {% else %}
+            <div class="box has-text-centered">
+                <span class="icon is-large has-text-grey">
+                    <i class="fas fa-heart fa-3x"></i>
+                </span>
+                <h3 class="title is-4">Você ainda não fez nenhuma solicitação</h3>
+                <p class="subtitle">
+                    Que tal começar procurando um gatinho para adotar?
+                </p>
+                <a href="{% url 'adocato:gatos_disponiveis' %}" class="button is-primary is-large">
+                    <span class="icon">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <span>Procurar Gatos</span>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Funções para modal
+document.addEventListener('DOMContentLoaded', () => {
+    // Adiciona event listeners para abrir modais
+    const modalTriggers = document.querySelectorAll('.js-modal-trigger');
+    modalTriggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const target = trigger.dataset.target;
+            const modal = document.getElementById(target);
+            modal.classList.add('is-active');
+        });
+    });
+});
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('is-active');
+}
+
+// Fecha modal clicando no fundo
+document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('modal-background')) {
+        event.target.closest('.modal').classList.remove('is-active');
+    }
+});
+</script>
+{% endblock %}

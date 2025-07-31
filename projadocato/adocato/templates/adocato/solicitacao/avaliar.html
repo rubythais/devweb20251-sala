@@ -1,0 +1,383 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Avaliar Solicitação - {{ solicitacao.gato.nome }}{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'adocato:index' %}">Início</a></li>
+                <li><a href="{% url 'adocato:solicitacoes_pendentes' %}">Solicitações Pendentes</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Avaliar Solicitação</a></li>
+            </ul>
+        </nav>
+
+        <h1 class="title">
+            <span class="icon-text">
+                <span class="icon">
+                    <i class="fas fa-gavel"></i>
+                </span>
+                <span>Avaliação de Solicitação</span>
+            </span>
+        </h1>
+
+        <div class="columns">
+            <div class="column is-8">
+                <!-- Informações da solicitação -->
+                <div class="box">
+                    <h2 class="title is-4">{{ solicitacao.adotante.nome }} → {{ solicitacao.gato.nome }}</h2>
+                    
+                    <div class="notification is-warning is-light">
+                        <p>
+                            <strong>Status:</strong> {{ solicitacao.get_status_display }}<br>
+                            <strong>Solicitada em:</strong> {{ solicitacao.dataSolicitacao|date:"d/m/Y H:i" }}
+                            {% if solicitacao.esta_atrasado %}
+                                <span class="tag is-danger ml-2">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    EM ATRASO
+                                </span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="columns">
+                        <div class="column is-6">
+                            <h3 class="title is-5">Informações do Adotante</h3>
+                            <div class="content">
+                                <p><strong>Nome:</strong> {{ solicitacao.adotante.nome }}</p>
+                                <p><strong>CPF:</strong> {{ solicitacao.adotante.cpf_formatado }}</p>
+                                <p><strong>Data de Nascimento:</strong> {{ solicitacao.adotante.dataNascimento|date:"d/m/Y" }} ({{ solicitacao.adotante.idade }} anos)</p>
+                                <p><strong>Username:</strong> {{ solicitacao.adotante.username }}</p>
+                                <p><strong>E-mail:</strong> {{ solicitacao.adotante.email|default:"Não informado" }}</p>
+                                <p><strong>Telefone:</strong> {{ solicitacao.adotante.telefone|default:"Não informado" }}</p>
+                                <p><strong>Endereço:</strong> {{ solicitacao.adotante.cidade|default:"Não informado" }}{% if solicitacao.adotante.estado %}/{{ solicitacao.adotante.estado }}{% endif %}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="column is-6">
+                            <h3 class="title is-5">Informações do Gato</h3>
+                            <div class="media">
+                                <div class="media-left">
+                                    {% if solicitacao.gato.foto %}
+                                        <figure class="image is-96x96">
+                                            <img src="{{ solicitacao.gato.foto.url }}" alt="{{ solicitacao.gato.nome }}" class="is-rounded">
+                                        </figure>
+                                    {% else %}
+                                        <figure class="image is-96x96">
+                                            <div class="has-background-grey-light is-flex is-justify-content-center is-align-items-center" style="height: 100%;">
+                                                <span class="icon has-text-grey">
+                                                    <i class="fas fa-cat fa-2x"></i>
+                                                </span>
+                                            </div>
+                                        </figure>
+                                    {% endif %}
+                                </div>
+                                <div class="media-content">
+                                    <div class="content">
+                                        <p><strong>Nome:</strong> {{ solicitacao.gato.nome }}</p>
+                                        <p><strong>Raça:</strong> {{ solicitacao.gato.raca.nome }}</p>
+                                        <p><strong>Idade:</strong> {{ solicitacao.gato.idade }} ano{{ solicitacao.gato.idade|pluralize:"s" }}</p>
+                                        <p><strong>Sexo:</strong> {{ solicitacao.gato.get_sexo_display }}</p>
+                                        <p><strong>Cor:</strong> {{ solicitacao.gato.cor }}</p>
+                                        <p><strong>Data de Nascimento:</strong> {{ solicitacao.gato.dataNascimento|date:"d/m/Y" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if solicitacao.gato.descricao %}
+                                <div class="content">
+                                    <p><strong>Descrição:</strong></p>
+                                    <p>{{ solicitacao.gato.descricao|linebreaks }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if solicitacao.recurso %}
+                        <div class="notification is-info">
+                            <h4 class="title is-5">
+                                <i class="fas fa-balance-scale mr-2"></i>
+                                Recurso Impetrado
+                            </h4>
+                            <div class="content">
+                                {{ solicitacao.recurso|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Formulário de avaliação -->
+                <div class="box">
+                    <h3 class="title is-4">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </span>
+                            <span>Sua Avaliação</span>
+                        </span>
+                    </h3>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="field">
+                            <label class="label">{{ form.parecer.label }}</label>
+                            <div class="control">
+                                {{ form.parecer }}
+                            </div>
+                            {% if form.parecer.errors %}
+                                {% for error in form.parecer.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            <p class="help">
+                                Descreva sua análise detalhadamente. Considere fatores como adequação do perfil do adotante, 
+                                condições de moradia, experiência com animais, etc.
+                            </p>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">{{ form.decisao.label }}</label>
+                            <div class="control">
+                                <div class="columns">
+                                    <div class="column is-6">
+                                        <label class="radio">
+                                            <input type="radio" name="decisao" value="aprovar" required>
+                                            <span class="icon has-text-success">
+                                                <i class="fas fa-check-circle"></i>
+                                            </span>
+                                            <strong class="has-text-success">Aprovar Solicitação</strong>
+                                            <br>
+                                            <small class="has-text-grey">O adotante poderá prosseguir com a adoção</small>
+                                        </label>
+                                    </div>
+                                    <div class="column is-6">
+                                        <label class="radio">
+                                            <input type="radio" name="decisao" value="reprovar" required>
+                                            <span class="icon has-text-danger">
+                                                <i class="fas fa-times-circle"></i>
+                                            </span>
+                                            <strong class="has-text-danger">Reprovar Solicitação</strong>
+                                            <br>
+                                            <small class="has-text-grey">O adotante poderá impetrar recurso</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if form.decisao.errors %}
+                                {% for error in form.decisao.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="notification is-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="field is-grouped">
+                            <div class="control">
+                                <button type="submit" class="button is-primary is-large" 
+                                        onclick="return confirm('Tem certeza da sua decisão? Esta ação não pode ser desfeita.')">
+                                    <span class="icon">
+                                        <i class="fas fa-gavel"></i>
+                                    </span>
+                                    <span>Confirmar Avaliação</span>
+                                </button>
+                            </div>
+                            <div class="control">
+                                <a href="{% url 'adocato:solicitacoes_pendentes' %}" class="button is-light">
+                                    <span class="icon">
+                                        <i class="fas fa-arrow-left"></i>
+                                    </span>
+                                    <span>Cancelar</span>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="column is-4">
+                <!-- Histórico de avaliações -->
+                {% if avaliacoes_anteriores %}
+                    <div class="box">
+                        <h3 class="title is-5">
+                            <span class="icon-text">
+                                <span class="icon">
+                                    <i class="fas fa-history"></i>
+                                </span>
+                                <span>Avaliações Anteriores</span>
+                            </span>
+                        </h3>
+                        
+                        {% for avaliacao in avaliacoes_anteriores %}
+                            <div class="box is-shadowless">
+                                <div class="content">
+                                    <p><strong>{{ avaliacao.coordenador.nome }}</strong></p>
+                                    <p class="is-size-7 has-text-grey">{{ avaliacao.dataAvaliacao|date:"d/m/Y H:i" }}</p>
+                                    <p>{{ avaliacao.parecer|truncatewords:20 }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Documentos -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-file-alt"></i>
+                            </span>
+                            <span>Documentos Anexados</span>
+                        </span>
+                    </h3>
+                    
+                    {% if documentos %}
+                        <div class="content">
+                            {% for documento in documentos %}
+                                <div class="box is-shadowless">
+                                    <div class="level">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                <div>
+                                                    <p class="subtitle is-6">
+                                                        <span class="icon">
+                                                            {% if documento.arquivo.name|slice:"-4:"|lower == '.pdf' %}
+                                                                <i class="fas fa-file-pdf has-text-danger"></i>
+                                                            {% elif documento.arquivo.name|slice:"-5:"|lower == '.docx' %}
+                                                                <i class="fas fa-file-word has-text-info"></i>
+                                                            {% elif documento.arquivo.name|slice:"-4:"|lower == '.odt' %}
+                                                                <i class="fas fa-file-alt has-text-warning"></i>
+                                                            {% else %}
+                                                                <i class="fas fa-file has-text-grey"></i>
+                                                            {% endif %}
+                                                        </span>
+                                                        {{ documento.arquivo.name|slice:"9:"|truncatechars:35 }}
+                                                    </p>
+                                                    {% if documento.descricao %}
+                                                        <p class="is-size-7 has-text-grey">{{ documento.descricao|truncatechars:50 }}</p>
+                                                    {% endif %}
+                                                    <p class="is-size-7 has-text-grey">
+                                                        <span class="icon">
+                                                            <i class="fas fa-clock"></i>
+                                                        </span>
+                                                        {{ documento.enviado_em|date:"d/m/Y H:i" }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
+                                            <div class="level-item">
+                                                <a href="{{ documento.arquivo.url }}" 
+                                                   target="_blank" 
+                                                   class="button is-small is-primary is-outlined"
+                                                   title="Visualizar documento">
+                                                    <span class="icon">
+                                                        <i class="fas fa-external-link-alt"></i>
+                                                    </span>
+                                                    <span>Abrir</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="notification is-info is-light">
+                            <p class="is-size-7">
+                                <span class="icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                                <strong>{{ documentos|length }} documento{{ documentos|length|pluralize:"s" }} anexado{{ documentos|length|pluralize:"s" }}</strong> 
+                                - Clique em "Abrir" para visualizar o documento em uma nova aba.
+                            </p>
+                        </div>
+                    {% else %}
+                        <div class="content">
+                            <div class="notification is-warning is-light">
+                                <p>
+                                    <span class="icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </span>
+                                    <strong>Nenhum documento anexado</strong>
+                                </p>
+                                <p class="is-size-7">
+                                    O adotante não anexou nenhum documento à solicitação. 
+                                    Considere este fator em sua avaliação.
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Dicas para avaliação -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </span>
+                            <span>Dicas para Avaliação</span>
+                        </span>
+                    </h3>
+                    
+                    <div class="content">
+                        <ul class="is-size-7">
+                            <li>Verifique se o adotante tem mais de 18 anos</li>
+                            <li>Considere a estabilidade de moradia</li>
+                            <li>Avalie experiência prévia com animais</li>
+                            <li>Considere disponibilidade de tempo para cuidados</li>
+                            <li>Verifique condições financeiras para manutenção</li>
+                            <li>Analise motivação para adoção</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Informações de contato -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-phone"></i>
+                            </span>
+                            <span>Contato do Adotante</span>
+                        </span>
+                    </h3>
+                    
+                    <div class="content">
+                        {% if solicitacao.adotante.telefone %}
+                            <p>
+                                <a href="tel:{{ solicitacao.adotante.telefone }}" class="button is-small is-fullwidth">
+                                    <span class="icon">
+                                        <i class="fas fa-phone"></i>
+                                    </span>
+                                    <span>{{ solicitacao.adotante.telefone }}</span>
+                                </a>
+                            </p>
+                        {% endif %}
+                        
+                        {% if solicitacao.adotante.email %}
+                            <p>
+                                <a href="mailto:{{ solicitacao.adotante.email }}" class="button is-small is-fullwidth">
+                                    <span class="icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <span>Enviar E-mail</span>
+                                </a>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

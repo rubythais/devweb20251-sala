@@ -17,6 +17,10 @@ class CasoUsoGato:
         except Gato.DoesNotExist:
             return None
     @staticmethod
+    def buscar_gatos_disponiveis():
+        """Lista todos os gatos disponíveis para adoção."""
+        return Gato.objects.filter(disponivel=True).order_by('nome')
+    @staticmethod
     def buscar_gatos(nome=None, raca_nome=None, disponivel=None):
         """Aqui temos uma refatoração, incluindo uma busca genérica, com 2 parâmetros opcionais: nome e raça"""
         query = Gato.objects.all()

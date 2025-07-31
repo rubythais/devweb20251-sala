@@ -1,0 +1,287 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Solicitações Pendentes{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="level">
+            <div class="level-left">
+                <h1 class="title">
+                    <span class="icon-text">
+                        <span class="icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </span>
+                        <span>Solicitações Pendentes de Análise</span>
+                    </span>
+                </h1>
+            </div>
+            <div class="level-right">
+                <div class="buttons">
+                    <span class="tag is-warning is-medium">
+                        <span class="icon">
+                            <i class="fas fa-clock"></i>
+                        </span>
+                        <span>{{ total_pendentes }} pendente{{ total_pendentes|pluralize:"s" }}</span>
+                    </span>
+                    {% if solicitacoes_atrasadas %}
+                        <span class="tag is-danger is-medium">
+                            <span class="icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </span>
+                            <span>{{ solicitacoes_atrasadas|length }} atrasada{{ solicitacoes_atrasadas|length|pluralize:"s" }}</span>
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if solicitacoes_atrasadas %}
+            <div class="notification is-warning">
+                <h4 class="title is-5">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    Atenção: Solicitações em Atraso
+                </h4>
+                <p>Existem {{ solicitacoes_atrasadas|length }} solicitação{{ solicitacoes_atrasadas|length|pluralize:"ões" }} com mais de 7 dias em análise. Priorize a avaliação dessas solicitações.</p>
+            </div>
+        {% endif %}
+
+        {% if solicitacoes %}
+            {% for solicitacao in solicitacoes %}
+                <div class="box {% if solicitacao in solicitacoes_atrasadas %}has-background-warning-light{% endif %}">
+                    <div class="media">
+                        <div class="media-left">
+                            {% if solicitacao.gato.foto %}
+                                <figure class="image is-96x96">
+                                    <img src="{{ solicitacao.gato.foto.url }}" alt="{{ solicitacao.gato.nome }}" class="is-rounded">
+                                </figure>
+                            {% else %}
+                                <figure class="image is-96x96">
+                                    <div class="has-background-grey-light is-flex is-justify-content-center is-align-items-center" style="height: 100%;">
+                                        <span class="icon has-text-grey">
+                                            <i class="fas fa-cat fa-2x"></i>
+                                        </span>
+                                    </div>
+                                </figure>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="media-content">
+                            <div class="content">
+                                <div class="level">
+                                    <div class="level-left">
+                                        <div>
+                                            <h4 class="title is-5">
+                                                {{ solicitacao.gato.nome }}
+                                                {% if solicitacao in solicitacoes_atrasadas %}
+                                                    <span class="tag is-warning">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        ATRASADA
+                                                    </span>
+                                                {% endif %}
+                                            </h4>
+                                            <p class="subtitle is-6">{{ solicitacao.gato.raca.nome }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="level-right">
+                                        <span class="tag is-warning is-medium">
+                                            {{ solicitacao.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="columns">
+                                    <div class="column is-6">
+                                        <p><strong>Adotante:</strong> {{ solicitacao.adotante.nome }}</p>
+                                        <p><strong>E-mail:</strong> {{ solicitacao.adotante.email|default:"Não informado" }}</p>
+                                        <p><strong>Telefone:</strong> {{ solicitacao.adotante.telefone|default:"Não informado" }}</p>
+                                        <p><strong>Cidade:</strong> {{ solicitacao.adotante.cidade|default:"Não informada" }}{% if solicitacao.adotante.estado %}/{{ solicitacao.adotante.estado }}{% endif %}</p>
+                                    </div>
+                                    <div class="column is-6">
+                                        <p><strong>Solicitada em:</strong> {{ solicitacao.dataSolicitacao|date:"d/m/Y H:i" }}</p>
+                                        <p><strong>Idade do Adotante:</strong> {{ solicitacao.adotante.idade }} anos</p>
+                                        
+                                        <div class="tags">
+                                            <span class="tag">{{ solicitacao.gato.idade }} ano{{ solicitacao.gato.idade|pluralize:"s" }}</span>
+                                            <span class="tag">{{ solicitacao.gato.cor }}</span>
+                                            <span class="tag">{{ solicitacao.gato.get_sexo_display }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if solicitacao.recurso %}
+                                    <div class="notification is-info is-light">
+                                        <p><strong>Recurso Impetrado:</strong></p>
+                                        <p>{{ solicitacao.recurso|truncatewords:20 }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="field is-grouped">
+                                <div class="control">
+                                    <a href="{% url 'adocato:avaliar_solicitacao' solicitacao.id %}" class="button is-primary">
+                                        <span class="icon">
+                                            <i class="fas fa-gavel"></i>
+                                        </span>
+                                        <span>Avaliar Solicitação</span>
+                                    </a>
+                                </div>
+                                
+                                <div class="control">
+                                    <a href="{% url 'adocato:gato_detalhes' solicitacao.gato.id %}" class="button is-light">
+                                        <span class="icon">
+                                            <i class="fas fa-eye"></i>
+                                        </span>
+                                        <span>Ver Gato</span>
+                                    </a>
+                                </div>
+                                
+                                <div class="control">
+                                    <button class="button is-info is-outlined js-modal-trigger" data-target="modal-detalhes-{{ solicitacao.id }}">
+                                        <span class="icon">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                        <span>Mais Detalhes</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal com detalhes completos -->
+                <div id="modal-detalhes-{{ solicitacao.id }}" class="modal">
+                    <div class="modal-background"></div>
+                    <div class="modal-card">
+                        <header class="modal-card-head">
+                            <p class="modal-card-title">Detalhes - {{ solicitacao.adotante.nome }} → {{ solicitacao.gato.nome }}</p>
+                            <button class="delete" aria-label="close" onclick="closeModal('modal-detalhes-{{ solicitacao.id }}')"></button>
+                        </header>
+                        <section class="modal-card-body">
+                            <div class="content">
+                                <h4>Informações do Adotante</h4>
+                                <div class="columns">
+                                    <div class="column">
+                                        <p><strong>Nome:</strong> {{ solicitacao.adotante.nome }}</p>
+                                        <p><strong>Username:</strong> {{ solicitacao.adotante.username }}</p>
+                                        <p><strong>CPF:</strong> {{ solicitacao.adotante.cpf_formatado }}</p>
+                                        <p><strong>Data de Nascimento:</strong> {{ solicitacao.adotante.dataNascimento|date:"d/m/Y" }}</p>
+                                    </div>
+                                    <div class="column">
+                                        <p><strong>E-mail:</strong> {{ solicitacao.adotante.email|default:"Não informado" }}</p>
+                                        <p><strong>Telefone:</strong> {{ solicitacao.adotante.telefone|default:"Não informado" }}</p>
+                                        <p><strong>Cidade:</strong> {{ solicitacao.adotante.cidade|default:"Não informada" }}</p>
+                                        <p><strong>Estado:</strong> {{ solicitacao.adotante.estado|default:"Não informado" }}</p>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <h4>Informações do Gato</h4>
+                                <div class="columns">
+                                    <div class="column">
+                                        <p><strong>Nome:</strong> {{ solicitacao.gato.nome }}</p>
+                                        <p><strong>Raça:</strong> {{ solicitacao.gato.raca.nome }}</p>
+                                        <p><strong>Idade:</strong> {{ solicitacao.gato.idade }} ano{{ solicitacao.gato.idade|pluralize:"s" }}</p>
+                                        <p><strong>Sexo:</strong> {{ solicitacao.gato.get_sexo_display }}</p>
+                                    </div>
+                                    <div class="column">
+                                        <p><strong>Cor:</strong> {{ solicitacao.gato.cor }}</p>
+                                        <p><strong>Data de Nascimento:</strong> {{ solicitacao.gato.dataNascimento|date:"d/m/Y" }}</p>
+                                        {% if solicitacao.gato.descricao %}
+                                            <p><strong>Descrição:</strong> {{ solicitacao.gato.descricao|truncatewords:30 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if solicitacao.recurso %}
+                                    <hr>
+                                    <h4>Recurso Impetrado</h4>
+                                    <div class="notification is-info is-light">
+                                        {{ solicitacao.recurso|linebreaks }}
+                                    </div>
+                                {% endif %}
+                                
+                                <hr>
+                                
+                                <h4>Timeline</h4>
+                                <p><strong>Solicitação criada:</strong> {{ solicitacao.dataSolicitacao|date:"d/m/Y H:i" }}</p>
+                                {% if solicitacao.esta_atrasado %}
+                                    <p class="has-text-danger"><strong>Status:</strong> Em atraso (mais de 7 dias)</p>
+                                {% endif %}
+                            </div>
+                        </section>
+                        <footer class="modal-card-foot">
+                            <a href="{% url 'adocato:avaliar_solicitacao' solicitacao.id %}" class="button is-primary">Avaliar Agora</a>
+                            <button type="button" class="button" onclick="closeModal('modal-detalhes-{{ solicitacao.id }}')">Fechar</button>
+                        </footer>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Paginação -->
+            {% if is_paginated %}
+                <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="pagination-previous">Primeira</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="pagination-previous">Anterior</a>
+                    {% endif %}
+                    
+                    <ul class="pagination-list">
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li><a class="pagination-link is-current">{{ num }}</a></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li><a href="?page={{ num }}" class="pagination-link">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="pagination-next">Próxima</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-next">Última</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+
+        {% else %}
+            <div class="box has-text-centered">
+                <span class="icon is-large has-text-grey">
+                    <i class="fas fa-clipboard-check fa-3x"></i>
+                </span>
+                <h3 class="title is-4">Nenhuma solicitação pendente</h3>
+                <p class="subtitle">
+                    Parabéns! No momento não há solicitações aguardando análise.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Funções para modal
+document.addEventListener('DOMContentLoaded', () => {
+    // Adiciona event listeners para abrir modais
+    const modalTriggers = document.querySelectorAll('.js-modal-trigger');
+    modalTriggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const target = trigger.dataset.target;
+            const modal = document.getElementById(target);
+            modal.classList.add('is-active');
+        });
+    });
+});
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('is-active');
+}
+
+// Fecha modal clicando no fundo
+document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('modal-background')) {
+        event.target.closest('.modal').classList.remove('is-active');
+    }
+});
+</script>
+{% endblock %}

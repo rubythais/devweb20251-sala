@@ -373,3 +373,83 @@ class ContatoForm(forms.Form):
         if mensagem and len(mensagem) < 30:
             raise ValidationError("A mensagem deve ter pelo menos 30 caracteres.")
         return mensagem
+
+
+class AvaliacaoSolicitacaoForm(forms.Form):
+    """Form para avaliação de solicitação de adoção pelo coordenador."""
+    
+    parecer = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'textarea',
+            'placeholder': 'Digite sua avaliação detalhada da solicitação...',
+            'rows': 6
+        }),
+        label='Parecer da Avaliação',
+        help_text='Descreva sua análise detalhadamente. Considere fatores como adequação do perfil do adotante, condições de moradia, experiência com animais, etc.'
+    )
+    
+    decisao = forms.ChoiceField(
+        choices=[
+            ('aprovar', 'Aprovar Solicitação'),
+            ('reprovar', 'Reprovar Solicitação')
+        ],
+        widget=forms.RadioSelect(attrs={
+            'class': 'radio'
+        }),
+        label='Decisão'
+    )
+    
+    def clean_parecer(self):
+        parecer = self.cleaned_data.get('parecer')
+        if parecer and len(parecer.strip()) < 10:
+            raise ValidationError("O parecer deve ter pelo menos 10 caracteres.")
+        return parecer.strip() if parecer else parecer
+
+
+class RecursoForm(forms.Form):
+    """Form para impetrar recurso."""
+    motivo = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'textarea',
+            'placeholder': 'Descreva os motivos do seu recurso (mínimo 10 caracteres)',
+            'rows': 4
+        }),
+        label='Motivo do Recurso',
+        min_length=10
+    )
+
+
+class DocumentoForm(forms.Form):
+    """Form para upload de documentos."""
+    arquivo = forms.FileField(
+        widget=forms.FileInput(attrs={
+            'class': 'file-input',
+            'accept': '.pdf,.odt,.docx'
+        }),
+        label='Arquivo',
+        help_text='Formatos aceitos: PDF, ODT, DOCX (máximo 10MB por arquivo).'
+    )
+    
+    descricao = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'input',
+            'placeholder': 'Descreva o documento (ex: RG, Comprovante de residência)'
+        }),
+        label='Descrição do Documento',
+        required=False
+    )
+    
+    def clean_arquivo(self):
+        arquivo = self.cleaned_data.get('arquivo')
+        if arquivo:
+            # Verificar extensão
+            nome = arquivo.name.lower()
+            if not nome.endswith(('.pdf', '.odt', '.docx')):
+                raise ValidationError("O arquivo deve ser um PDF, ODT ou DOCX.")
+            
+            # Verificar tamanho (máximo 10MB)
+            if arquivo.size > 10 * 1024 * 1024:
+                raise ValidationError("O arquivo deve ter no máximo 10MB.")
+        
+        return arquivo
