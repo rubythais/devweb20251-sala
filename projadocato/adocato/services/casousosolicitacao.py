@@ -245,6 +245,7 @@ class CasoUsoSolicitacao:
             raise e
         
         solicitacao.save()
+        solicitacao.gato.save()
         return solicitacao
     
     @staticmethod
