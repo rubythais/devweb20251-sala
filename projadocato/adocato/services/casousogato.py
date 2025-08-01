@@ -28,7 +28,7 @@ class CasoUsoGato:
     @staticmethod
     def buscar_gatos(nome=None, raca_nome=None):
         """Aqui temos uma refatoração, incluindo uma busca genérica, com 2 parâmetros opcionais: nome e raça"""
-        query = Gato.objects.all()
+        query = Gato.objects.select_related('raca').order_by('nome')
         if nome:
             query = query.filter(nome__icontains=nome)
         if raca_nome:

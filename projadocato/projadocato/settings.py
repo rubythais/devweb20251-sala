@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "adocato",
     "django_extensions",
+    "debug_toolbar",
     
 ]
 
@@ -49,10 +50,10 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",   
 ]
-
 ROOT_URLCONF = "projadocato.urls"
 
 TEMPLATES = [
@@ -134,3 +135,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = 'adocato:login'
 LOGIN_REDIRECT_URL = 'adocato:index'
 LOGOUT_REDIRECT_URL = 'adocato:login'
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost",
+]
