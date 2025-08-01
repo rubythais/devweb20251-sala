@@ -11,13 +11,7 @@
                 <p class="subtitle">Olá, {{ usuario_nome }}! 🐱</p>
                 <p class="content">Encontre e adote seu novo melhor amigo felino. Nossa plataforma conecta você aos gatos que precisam de um lar cheio de amor.</p>
                 <div class="buttons">
-                    <a href="{% url 'adocato:listar_gatos' %}" class="button is-primary is-medium">
-                        <span class="icon">
-                            <i class="fas fa-heart"></i>
-                        </span>
-                        <span>Ver Gatos para Adoção</span>
-                    </a>
-                    <a href="{% url 'adocato:listar_gatos_disponiveis' %}" class="button is-info is-medium">
+                    <a href="{% url 'adocato:gatos_disponiveis' %}" class="button is-info is-medium">
                         <span class="icon">
                             <i class="fas fa-cat"></i>
                         </span>

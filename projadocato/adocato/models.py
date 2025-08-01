@@ -2,6 +2,7 @@ from django.db import models
 from datetime import date,datetime, timedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from .utils import Utilitaria
 
 class Raca(models.Model):
@@ -162,13 +163,13 @@ class Solicitacao(models.Model):
     adotante = models.ForeignKey(Adotante, on_delete=models.CASCADE, related_name='solicitacoes_adotante')
     gato = models.ForeignKey(Gato, on_delete=models.CASCADE, related_name='solicitacoes_gato')
     dataSolicitacao = models.DateTimeField(auto_now=True) #Modificado para auto_now=True para registrar a data e hora da solicitação automaticamente
-    status = models.CharField(max_length=20, choices=[('Em_Analise', 'Em Análise'), ('Aprovada', 'Aprovada'), ('Reprovada', 'Reprovada'),('Em_Recurso','Em Recurso')], default='Reprovada')
+    status = models.CharField(max_length=20, choices=[('Em_Edicao','Em Edição'),('Em_Analise', 'Em Análise'), ('Aprovada', 'Aprovada'), ('Reprovada', 'Reprovada'),('Em_Recurso','Em Recurso')], default='Em_Edicao')
     recurso= models.TextField(blank=True, null=True, verbose_name="Motivo do Recurso")
     avaliadores = models.ManyToManyField(Coordenador, blank=True, related_name='avaliacoes_solicitadas',through='Avaliacao')
     def esta_atrasado(self):
-        """Verifica se a solicitação está atrasada."""
+        """Verifica se a solicitação está atrasada."""  
         prazo = self.dataSolicitacao + timedelta(days=7) #Nesse caso, seria necessário atualizar a data da solicitação para o dia atual quando o status for 'Em Recurso'
-        return (self.status == 'Em_Analise' or self.status == 'Em_Recurso') and datetime.now() > prazo 
+        return (self.status == 'Em_Analise' or self.status == 'Em_Recurso') and timezone.now() > prazo 
     
     def clean(self):
         erros={}
@@ -176,7 +177,7 @@ class Solicitacao(models.Model):
             erros['adotante'] = "O adotante é obrigatório."
         if not self.gato:
             erros['gato'] = "O gato é obrigatório."
-        if self.status not in ['Em_Analise', 'Aprovada', 'Reprovada', 'Em_Recurso']:
+        if self.status not in ['Em_Edicao', 'Em_Analise', 'Aprovada', 'Reprovada', 'Em_Recurso']:
             erros['status'] = "Status inválido."
         if self.status == 'Em_Recurso' and not self.recurso:    
             erros['recurso'] = "O motivo do recurso é obrigatório quando o status é 'Em Recurso'."

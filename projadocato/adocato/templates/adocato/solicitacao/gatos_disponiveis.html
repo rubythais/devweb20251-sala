@@ -1,0 +1,146 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Gatos Disponíveis para Adoção{% endblock %}
+
+{% block content %}
+<div class="hero is-primary is-small">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-heart"></i>
+                    </span>
+                    <span>Gatos Disponíveis para Adoção</span>
+                </span>
+            </h1>
+            <p class="subtitle">
+                Encontre seu novo companheiro felino!
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="container">
+        {% if gatos %}
+            <div class="level">
+                <div class="level-left">
+                    <p class="level-item">
+                        <strong>{{ total_gatos }} gatinho{{ total_gatos|pluralize:"s" }} esperando por uma família!</strong>
+                    </p>
+                </div>
+                <div class="level-right">
+                    {% if not user.is_authenticated %}
+                        <p class="level-item">
+                            <a href="{% url 'adocato:adotante_registro' %}" class="button is-primary">
+                                <span class="icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </span>
+                                <span>Cadastre-se para Adotar</span>
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="columns is-multiline">
+                {% for gato in gatos %}
+                    <div class="column is-4">
+                        <div class="card">
+                            <div class="card-image">
+                                {% if gato.foto %}
+                                    <figure class="image is-3by2">
+                                        <img src="{{ gato.foto.url }}" alt="{{ gato.nome }}" class="is-rounded">
+                                    </figure>
+                                {% else %}
+                                    <figure class="image is-3by2">
+                                        <div class="has-background-grey-light is-flex is-justify-content-center is-align-items-center" style="height: 100%;">
+                                            <span class="icon is-large has-text-grey">
+                                                <i class="fas fa-cat fa-3x"></i>
+                                            </span>
+                                        </div>
+                                    </figure>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="card-content">
+                                <div class="media">
+                                    <div class="media-content">
+                                        <p class="title is-5">{{ gato.nome }}</p>
+                                        <p class="subtitle is-6">{{ gato.raca.nome }}</p>
+                                    </div>
+                                    <div class="media-right">
+                                        <span class="tag is-info is-medium">
+                                            {% if gato.sexo == 'M' %}
+                                                <i class="fas fa-mars"></i>
+                                            {% else %}
+                                                <i class="fas fa-venus"></i>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="content">
+                                    <div class="columns is-mobile">
+                                        <div class="column">
+                                            <strong>Idade:</strong> {{ gato.idade }} ano{{ gato.idade|pluralize:"s" }}
+                                        </div>
+                                        <div class="column">
+                                            <strong>Cor:</strong> {{ gato.cor }}
+                                        </div>
+                                    </div>
+                                    
+                                    {% if gato.descricao %}
+                                        <p class="has-text-grey">
+                                            {{ gato.descricao|truncatewords:15 }}
+                                        </p>
+                                    {% endif %}
+                                    
+                                    <div class="tags">
+                                        <span class="tag is-success">
+                                            <span class="icon">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                            <span>Disponível</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <footer class="card-footer">
+                                <a href="{% url 'adocato:gato_detalhes' gato.id %}" class="card-footer-item">
+                                    <span class="icon">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                    <span>Saber Mais</span>
+                                </a>
+                            </footer>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <div class="box has-text-centered">
+                <span class="icon is-large has-text-grey">
+                    <i class="fas fa-cat fa-3x"></i>
+                </span>
+                <h3 class="title is-4">Nenhum gatinho disponível no momento</h3>
+                <p class="subtitle">
+                    No momento não temos gatinhos disponíveis para adoção. 
+                    Volte em breve para conferir novos amiguinhos!
+                </p>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'adocato:adotante_registro' %}" class="button is-primary">
+                        <span class="icon">
+                            <i class="fas fa-user-plus"></i>
+                        </span>
+                        <span>Cadastre-se para ser Notificado</span>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

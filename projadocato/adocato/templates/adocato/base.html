@@ -5,6 +5,8 @@
     <title>{% block title %}Adocato{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     {% load static %}
 </head>
 <body>
@@ -28,8 +30,25 @@
                         <a class="navbar-item" href="{% url 'adocato:listar_racas' %}">Raças</a>
                     {% endif %}
                     <a class="navbar-item" href="{% url 'adocato:listar_gatos' %}">Gatos</a>
-                    {%if eh_coordenador or eh_adotante %}
-                        <a class="navbar-item" href="#">Solicitação</a>
+                    
+                    {% if eh_adotante %}
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">Adoção</a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item" href="{% url 'adocato:gatos_disponiveis' %}">Gatos Disponíveis</a>
+                                <a class="navbar-item" href="{% url 'adocato:minhas_solicitacoes' %}">Minhas Solicitações</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if eh_coordenador %}
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">Solicitações</a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item" href="{% url 'adocato:solicitacoes_pendentes' %}">Pendentes</a>
+                                <a class="navbar-item" href="{% url 'adocato:gatos_disponiveis' %}">Gatos Disponíveis</a>
+                            </div>
+                        </div>
                     {% endif %}
                     {% if eh_administrador %}
                         <a class="navbar-item" href="{% url 'adocato:listar_coordenadores' %}">Coordenadores</a>

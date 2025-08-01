@@ -1,0 +1,444 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Editar Solicitação - {{ solicitacao.gato.nome }}{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'adocato:index' %}">Início</a></li>
+                <li><a href="{% url 'adocato:minhas_solicitacoes' %}">Minhas Solicitações</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Editar Solicitação</a></li>
+            </ul>
+        </nav>
+
+        <div class="columns">
+            <div class="column is-8">
+                <div class="box">
+                    <h1 class="title">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            <span>Solicitação de Adoção</span>
+                        </span>
+                    </h1>
+                    
+                    <h2 class="subtitle">{{ solicitacao.gato.nome }} - {{ solicitacao.gato.raca.nome }}</h2>
+
+                    <!-- Status da solicitação -->
+                    <div class="notification 
+                        {% if solicitacao.status == 'Em_Edicao' %}is-info
+                        {% elif solicitacao.status == 'Em_Analise' %}is-warning
+                        {% elif solicitacao.status == 'Aprovada' %}is-success
+                        {% elif solicitacao.status == 'Reprovada' %}is-danger
+                        {% elif solicitacao.status == 'Em_Recurso' %}is-link
+                        {% endif %}">
+                        <p>
+                            <strong>Status atual:</strong> {{ solicitacao.get_status_display }}
+                        </p>
+                        {% if solicitacao.status == 'Em_Edicao' %}
+                            <p>Você pode editar sua solicitação e anexar documentos. Quando estiver pronto, envie para análise.</p>
+                        {% elif solicitacao.status == 'Em_Analise' %}
+                            <p>Sua solicitação está sendo analisada pela nossa equipe. Aguarde o resultado.</p>
+                        {% elif solicitacao.status == 'Em_Recurso' %}
+                            <p>Você pode editar o motivo do recurso e anexar documentos adicionais antes de enviar.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Informações do gato -->
+                    <div class="box">
+                        <div class="media">
+                            <div class="media-left">
+                                {% if solicitacao.gato.foto %}
+                                    <figure class="image is-96x96">
+                                        <img src="{{ solicitacao.gato.foto.url }}" alt="{{ solicitacao.gato.nome }}" class="is-rounded">
+                                    </figure>
+                                {% else %}
+                                    <figure class="image is-96x96">
+                                        <div class="has-background-grey-light is-flex is-justify-content-center is-align-items-center" style="height: 100%;">
+                                            <span class="icon has-text-grey">
+                                                <i class="fas fa-cat fa-2x"></i>
+                                            </span>
+                                        </div>
+                                    </figure>
+                                {% endif %}
+                            </div>
+                            <div class="media-content">
+                                <p class="title is-5">{{ solicitacao.gato.nome }}</p>
+                                <p class="subtitle is-6">{{ solicitacao.gato.raca.nome }}</p>
+                                <p>
+                                    <span class="tag">{{ solicitacao.gato.idade }} ano{{ solicitacao.gato.idade|pluralize:"s" }}</span>
+                                    <span class="tag">{{ solicitacao.gato.cor }}</span>
+                                    <span class="tag">{{ solicitacao.gato.get_sexo_display }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulário de recurso (se aplicável) -->
+                    {% if solicitacao.status == 'Em_Recurso' and form_recurso %}
+                        <div class="box">
+                            <h3 class="title is-5">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i class="fas fa-balance-scale"></i>
+                                    </span>
+                                    <span>Motivo do Recurso</span>
+                                </span>
+                            </h3>
+                            
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="acao" value="atualizar_recurso">
+                                
+                                <div class="field">
+                                    <label class="label">{{ form_recurso.motivo.label }}</label>
+                                    <div class="control">
+                                        {{ form_recurso.motivo }}
+                                    </div>
+                                    {% if form_recurso.motivo.errors %}
+                                        {% for error in form_recurso.motivo.errors %}
+                                            <p class="help is-danger">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <p class="help">Explique detalhadamente os motivos do seu recurso.</p>
+                                </div>
+                                
+                                <div class="field is-grouped">
+                                    <div class="control">
+                                        <button type="submit" class="button is-primary">
+                                            <span class="icon">
+                                                <i class="fas fa-save"></i>
+                                            </span>
+                                            <span>Salvar Recurso</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
+
+                    <!-- Ações disponíveis -->
+                    <div class="box">
+                        <h3 class="title is-5">Ações Disponíveis</h3>
+                        
+                        <div class="field is-grouped">
+                            {% if solicitacao.status == 'Em_Edicao' %}
+                                <div class="control">
+                                    <form method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="acao" value="enviar">
+                                        <button type="submit" class="button is-primary" 
+                                                onclick="return confirm('Tem certeza que deseja enviar esta solicitação para análise? Após o envio, você não poderá mais editá-la.')">
+                                            <span class="icon">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </span>
+                                            <span>Enviar para Análise</span>
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div class="control">
+                                    <form method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="acao" value="cancelar">
+                                        <button type="submit" class="button is-danger is-outlined" 
+                                                onclick="return confirm('Tem certeza que deseja cancelar esta solicitação? Esta ação não pode ser desfeita.')">
+                                            <span class="icon">
+                                                <i class="fas fa-times"></i>
+                                            </span>
+                                            <span>Cancelar Solicitação</span>
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                            {% elif solicitacao.status == 'Em_Recurso' %}
+                                <div class="control">
+                                    <form method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="acao" value="enviar_recurso">
+                                        <button type="submit" class="button is-primary"
+                                                onclick="return confirm('Tem certeza que deseja enviar este recurso para análise?')">
+                                            <span class="icon">
+                                                <i class="fas fa-balance-scale"></i>
+                                            </span>
+                                            <span>Enviar Recurso</span>
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div class="control">
+                                    <form method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="acao" value="cancelar">
+                                        <button type="submit" class="button is-danger is-outlined" 
+                                                onclick="return confirm('Tem certeza que deseja cancelar esta solicitação? Esta ação não pode ser desfeita.')">
+                                            <span class="icon">
+                                                <i class="fas fa-times"></i>
+                                            </span>
+                                            <span>Cancelar Solicitação</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="control">
+                                <a href="{% url 'adocato:minhas_solicitacoes' %}" class="button">
+                                    <span class="icon">
+                                        <i class="fas fa-arrow-left"></i>
+                                    </span>
+                                    <span>Voltar</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-4">
+                <!-- Timeline do processo -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-clock"></i>
+                            </span>
+                            <span>Timeline</span>
+                        </span>
+                    </h3>
+                    
+                    <div class="content">
+                        <p><strong>Criada em:</strong><br>{{ solicitacao.dataSolicitacao|date:"d/m/Y H:i" }}</p>
+                        
+                        {% if solicitacao.esta_atrasado %}
+                            <div class="notification is-warning is-small">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Solicitação em atraso (mais de 7 dias)
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Documentos -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-file-alt"></i>
+                            </span>
+                            <span>Documentos</span>
+                        </span>
+                    </h3>
+                    
+                    <!-- Lista de documentos já anexados -->
+                    {% if documentos %}
+                        <div class="mb-4">
+                            <h4 class="title is-6">Documentos Anexados</h4>
+                            {% for documento in documentos %}
+                                <div class="box is-shadowless">
+                                    <div class="level">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                <span class="icon has-text-success">
+                                                    <i class="fas fa-file-check"></i>
+                                                </span>
+                                                <div class="ml-2">
+                                                    <p class="has-text-weight-bold">{{ documento.arquivo.name }}</p>
+                                                    {% if documento.descricao %}
+                                                        <p class="is-size-7 has-text-grey">{{ documento.descricao }}</p>
+                                                    {% endif %}
+                                                    <p class="is-size-7 has-text-grey">
+                                                        Enviado em: {{ documento.enviado_em|date:"d/m/Y H:i" }}
+                                                    </p>
+                                                </div>
+                                               
+                                            </div>
+                                        </div>
+                                       
+                                    </div>
+                                      <div class="buttons">
+                                                    <a href="{{ documento.arquivo.url }}" target="_blank" class="button is-small is-info is-outlined">
+                                                        <span class="icon">
+                                                            <i class="fas fa-download"></i>
+                                                        </span>
+                                                        <span>Baixar</span>
+                                                    </a>
+                                                    {% if solicitacao.status in 'Em_Edicao,Em_Recurso' %}
+                                                        <button type="button" class="button is-small is-danger is-outlined" 
+                                                                onclick="removerDocumento({{ documento.id }}, '{{ documento.arquivo.name }}')">
+                                                            <span class="icon">
+                                                                <i class="fas fa-trash"></i>
+                                                            </span>
+                                                            <span>Remover</span>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    {% if solicitacao.status in 'Em_Edicao,Em_Recurso' %}
+                        <div class="notification is-info is-light">
+                            <p class="is-size-7">
+                                <strong>Dica:</strong> Você pode anexar documentos como RG, comprovante de residência e renda.
+                                Formatos aceitos: PDF, ODT, DOCX (máximo 10MB por arquivo).
+                            </p>
+                        </div>
+                        
+                        <!-- Formulário de upload de documentos -->
+                        <form method="post" enctype="multipart/form-data" id="form-upload">
+                            {% csrf_token %}
+                            <input type="hidden" name="acao" value="upload_documento">
+                            
+                            <div class="field">
+                                <label class="label">{{ documento_form.descricao.label }}</label>
+                                <div class="control">
+                                    {{ documento_form.descricao }}
+                                </div>
+                                <p class="help">Descreva o(s) documento(s) que está enviando (opcional)</p>
+                            </div>
+                            
+                            <div class="field">
+                                <label class="label">{{ documento_form.arquivo.label }}</label>
+                                <div class="file is-boxed is-fullwidth has-name" id="file-upload">
+                                    <label class="file-label">
+                                        <input class="file-input" type="file" name="arquivo" multiple 
+                                               accept=".pdf,.odt,.docx" id="file-input">
+                                        <span class="file-cta">
+                                            <span class="file-icon">
+                                                <i class="fas fa-upload"></i>
+                                            </span>
+                                            <span class="file-label">Selecionar Arquivos</span>
+                                        </span>
+                                        <span class="file-name" id="file-name">
+                                            Nenhum arquivo selecionado
+                                        </span>
+                                    </label>
+                                </div>
+                                <p class="help">{{ documento_form.arquivo.help_text }} Você pode selecionar múltiplos arquivos.</p>
+                            </div>
+                            
+                            <div class="field">
+                                <div class="control">
+                                    <button type="submit" class="button is-primary" id="btn-upload" disabled>
+                                        <span class="icon">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <span>Enviar Documentos</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <p class="has-text-grey">Documentos só podem ser anexados durante a edição.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Informações de contato -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-question-circle"></i>
+                            </span>
+                            <span>Precisa de Ajuda?</span>
+                        </span>
+                    </h3>
+                    
+                    <div class="content">
+                        <p>Em caso de dúvidas sobre o processo de adoção, entre em contato conosco:</p>
+                        <p>
+                            <strong>E-mail:</strong> adocao@adocato.com.br<br>
+                            <strong>Telefone:</strong> (11) 99999-9999
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmação de remoção -->
+<div id="modal-remover-documento" class="modal">
+    <div class="modal-background" onclick="fecharModalRemover()"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </span>
+                    <span>Confirmar Remoção</span>
+                </span>
+            </p>
+            <button class="delete" aria-label="close" onclick="fecharModalRemover()"></button>
+        </header>
+        <section class="modal-card-body">
+            <p>Tem certeza que deseja remover o documento <strong id="nome-documento-remover"></strong>?</p>
+            <p class="has-text-danger">Esta ação não pode ser desfeita.</p>
+        </section>
+        <footer class="modal-card-foot">
+            <form method="post" id="form-remover-documento">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="remover_documento">
+                <input type="hidden" name="documento_id" id="documento-id-remover">
+                <button type="submit" class="button is-danger">
+                    <span class="icon">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span>Confirmar Remoção</span>
+                </button>
+                <button type="button" class="button" onclick="fecharModalRemover()">Cancelar</button>
+            </form>
+        </footer>
+    </div>
+</div>
+
+<script>
+// Gerenciar seleção de arquivos
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('file-input');
+    const fileName = document.getElementById('file-name');
+    const btnUpload = document.getElementById('btn-upload');
+    
+    if (fileInput && fileName && btnUpload) {
+        fileInput.addEventListener('change', function() {
+            const files = this.files;
+            if (files.length > 0) {
+                if (files.length === 1) {
+                    fileName.textContent = files[0].name;
+                } else {
+                    fileName.textContent = `${files.length} arquivos selecionados`;
+                }
+                btnUpload.disabled = false;
+            } else {
+                fileName.textContent = 'Nenhum arquivo selecionado';
+                btnUpload.disabled = true;
+            }
+        });
+    }
+});
+
+// Função para abrir modal de remoção
+function removerDocumento(documentoId, nomeDocumento) {
+    document.getElementById('documento-id-remover').value = documentoId;
+    document.getElementById('nome-documento-remover').textContent = nomeDocumento;
+    document.getElementById('modal-remover-documento').classList.add('is-active');
+}
+
+// Função para fechar modal de remoção
+function fecharModalRemover() {
+    document.getElementById('modal-remover-documento').classList.remove('is-active');
+}
+
+// Feedback visual para upload
+document.getElementById('form-upload').addEventListener('submit', function() {
+    const btnUpload = document.getElementById('btn-upload');
+    btnUpload.innerHTML = '<span class="icon"><i class="fas fa-spinner fa-spin"></i></span><span>Enviando...</span>';
+    btnUpload.disabled = true;
+});
+</script>
+{% endblock %}
