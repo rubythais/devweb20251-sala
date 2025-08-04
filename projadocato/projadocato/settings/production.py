@@ -5,6 +5,9 @@ Settings para ambiente de produção (Render.com)
 from .base import *
 import os
 import dj_database_url
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -97,4 +100,31 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+# Configurações do Cloudinary para armazenamento de arquivos de media
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+    secure=True
+)
+
+# Usar Cloudinary para arquivos de media em produção
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Configurações de upload
+CLOUDINARY_UPLOAD_OPTIONS = {
+    'folder': 'adocato',  # Organizar em pasta específica no Cloudinary
+    'resource_type': 'auto',  # Detectar automaticamente o tipo do arquivo
+    'use_filename': True,
+    'unique_filename': True,
+    'overwrite': False,
 }
