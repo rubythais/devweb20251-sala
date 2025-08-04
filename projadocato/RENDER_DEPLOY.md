@@ -12,9 +12,9 @@
 
 Certifique-se de que os seguintes arquivos estão no seu repositório:
 
-- `requirements_render.txt` - Dependências Python
-- `build.sh` - Script de build
-- `render.yaml` - Configuração do Render (opcional)
+- `build.sh` - Script de build (na raiz do repositório)
+- `render.yaml` - Configuração do Render (na raiz do repositório)
+- `projadocato/requirements_render.txt` - Dependências Python
 - Configurações de produção em `projadocato/settings/production.py`
 
 ### 2. Criar o serviço no Render
@@ -115,17 +115,18 @@ python manage.py shell --settings=projadocato.settings.production
 ## 📁 Estrutura de arquivos importantes
 
 ```
-projadocato/
+/                               # Raiz do repositório
 ├── build.sh                    # Script de build do Render
-├── render.yaml                 # Configuração automática
-├── requirements_render.txt     # Dependências para produção
-├── projadocato/
-│   ├── settings/
-│   │   ├── production.py       # Settings para produção
-│   │   └── ...
-│   ├── wsgi.py                 # Configurado para produção
-│   └── ...
-└── ...
+├── render.yaml                 # Configuração automática do Render
+└── projadocato/                # Diretório do projeto Django
+    ├── requirements_render.txt # Dependências para produção
+    ├── projadocato/
+    │   ├── settings/
+    │   │   ├── production.py   # Settings para produção
+    │   │   └── ...
+    │   ├── wsgi.py             # Configurado para produção
+    │   └── ...
+    └── ...
 ```
 
 ## 🔍 Monitoramento e logs

@@ -10,7 +10,7 @@ services:
     env: python
     plan: free
     buildCommand: "./build.sh"
-    startCommand: 'python -m gunicorn projadocato.asgi:application -k uvicorn.workers.UvicornWorker' 
+    startCommand: 'cd projadocato && python -m gunicorn projadocato.asgi:application -k uvicorn.workers.UvicornWorker' 
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0

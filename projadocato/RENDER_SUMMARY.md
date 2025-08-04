@@ -4,9 +4,9 @@
 
 ### 📁 Configurações principais:
 - `projadocato/settings/production.py` - Otimizado para Render.com
-- `requirements_render.txt` - Dependências específicas para produção
-- `build.sh` - Script de build do Render
-- `render.yaml` - Configuração automática do Render
+- `projadocato/requirements_render.txt` - Dependências específicas para produção
+- `build.sh` - Script de build do Render (na raiz)
+- `render.yaml` - Configuração automática do Render (na raiz)
 
 ### 📋 Documentação:
 - `RENDER_DEPLOY.md` - Guia completo de deploy

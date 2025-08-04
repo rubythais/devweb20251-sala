@@ -2,6 +2,9 @@
 # exit on error
 set -o errexit
 
+# Change to project directory
+cd projadocato
+
 # Install dependencies
 pip install -r requirements_render.txt
 
