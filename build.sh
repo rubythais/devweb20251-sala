@@ -13,3 +13,6 @@ python manage.py collectstatic --noinput --settings=projadocato.settings.product
 
 # Run migrations
 python manage.py migrate --settings=projadocato.settings.production
+
+#Cria um superusuário com a senha definida no ambiente
+python manage.py runscript createsuperuser --settings=projadocato.settings.production
