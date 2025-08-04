@@ -1,4 +1,4 @@
-database:
+databases:
   - name: adocatodb
     plan: free
     databaseName: adocato
