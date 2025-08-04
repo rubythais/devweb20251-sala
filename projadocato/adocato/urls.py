@@ -37,6 +37,8 @@ from adocato.views.viewssolicitacao import (
     AvaliarSolicitacaoView
 )
 
+from adocato.views.viewsdarkmode import ToogleDarkModeView
+
 app_name = "adocato"
 urlpatterns = [
     path("", IndexView.as_view(), name="index"),
@@ -81,4 +83,7 @@ urlpatterns = [
     # URLs para Coordenadores - Avaliação de Solicitações
     path("coordenador/solicitacoes/pendentes/", SolicitacoesPendentesView.as_view(), name="solicitacoes_pendentes"),
     path("coordenador/solicitacao/avaliar/<int:solicitacao_id>/", AvaliarSolicitacaoView.as_view(), name="avaliar_solicitacao"),
+
+    #URls para alternar o modo escuro
+    path("toogle-dark-mode/", ToogleDarkModeView.as_view(), name="toogle_dark_mode"),
 ]
