@@ -1,0 +1,163 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Editar Coordenador - {{ coordenador.nome }}{% endblock %}
+
+{% block content %}
+<div class="columns is-centered">
+    <div class="column is-8">
+        <div class="box">
+            <h4 class="title is-4">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-user-edit"></i>
+                    </span>
+                    <span>Editar Coordenador: {{ coordenador.nome }}</span>
+                </span>
+            </h4>
+
+            <form method="post" action="{% url 'adocato:coordenador_edit' coordenador.id %}">
+                {% csrf_token %}
+                
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">{{ form.nome.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.nome }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                            </div>
+                            {% if form.nome.errors %}
+                                {% for error in form.nome.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">{{ form.username.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.username }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-at"></i>
+                                </span>
+                            </div>
+                            {% if form.username.errors %}
+                                {% for error in form.username.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">{{ form.email.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.email }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                            {% if form.email.errors %}
+                                {% for error in form.email.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">{{ form.cpf.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.cpf }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-id-card"></i>
+                                </span>
+                            </div>
+                            <p class="help">Digite apenas números</p>
+                            {% if form.cpf.errors %}
+                                {% for error in form.cpf.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="columns">
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">{{ form.password.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.password }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </div>
+                            {% if form.password.help_text %}
+                                <p class="help">{{ form.password.help_text }}</p>
+                            {% endif %}
+                            {% if form.password.errors %}
+                                {% for error in form.password.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="column is-6">
+                        <div class="field">
+                            <label class="label">{{ form.confirm_password.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.confirm_password }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                            </div>
+                            {% if form.confirm_password.errors %}
+                                {% for error in form.confirm_password.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="notification is-danger">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="field is-grouped is-grouped-right">
+                    <div class="control">
+                        <a href="{% url 'adocato:listar_coordenadores' %}" class="button">
+                            <span class="icon">
+                                <i class="fas fa-arrow-left"></i>
+                            </span>
+                            <span>Cancelar</span>
+                        </a>
+                    </div>
+                    <div class="control">
+                        <button type="submit" class="button is-primary">
+                            <span class="icon">
+                                <i class="fas fa-save"></i>
+                            </span>
+                            <span>Salvar Alterações</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

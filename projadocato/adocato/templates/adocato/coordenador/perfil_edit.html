@@ -1,0 +1,107 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Editar Perfil - {{ coordenador.nome }}{% endblock %}
+
+{% block content %}
+<div class="columns is-centered">
+    <div class="column is-8">
+        <div class="box">
+            <h4 class="title is-4">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-user-edit"></i>
+                    </span>
+                    <span>Editar Perfil</span>
+                </span>
+            </h4>
+            
+            <p class="subtitle is-6 has-text-grey">
+                Atualize suas informações pessoais
+            </p>
+
+            <div class="columns">
+                <div class="column is-8">
+                    <form method="post" action="{% url 'adocato:atualizar_coordenador_perfil' %}">
+                        {% csrf_token %}
+                        
+                        <div class="field">
+                            <label class="label">{{ form.nome.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.nome }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                            </div>
+                            {% if form.nome.errors %}
+                                {% for error in form.nome.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="field">
+                            <label class="label">{{ form.email.label }}</label>
+                            <div class="control has-icons-left">
+                                {{ form.email }}
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                            {% if form.email.errors %}
+                                {% for error in form.email.errors %}
+                                    <p class="help is-danger">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="notification is-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="field is-grouped is-grouped-right">
+                            <div class="control">
+                                <a href="{% url 'adocato:perfil' %}" class="button">
+                                    <span class="icon">
+                                        <i class="fas fa-arrow-left"></i>
+                                    </span>
+                                    <span>Cancelar</span>
+                                </a>
+                            </div>
+                            <div class="control">
+                                <button type="submit" class="button is-primary">
+                                    <span class="icon">
+                                        <i class="fas fa-save"></i>
+                                    </span>
+                                    <span>Salvar Alterações</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="column is-4">
+                    <div class="box">
+                        <h5 class="title is-5">Informações Fixas</h5>
+                        
+                        <div class="content">
+                            <p><strong>Nome de Usuário:</strong><br>{{ coordenador.username }}</p>
+                            <p><strong>CPF:</strong><br>{{ coordenador.cpf_formatado }}</p>
+                            <p><strong>Tipo de Usuário:</strong><br>Coordenador</p>
+                        </div>
+                        
+                        <div class="notification is-info is-light">
+                            <p class="is-size-7">
+                                <strong>Nota:</strong> Algumas informações como CPF e nome de usuário não podem ser alteradas. Para alterações completas, procure um administrador.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

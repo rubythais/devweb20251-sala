@@ -5,8 +5,59 @@
 <section class="section">
     <div class="container">
         <h1 class="title">Bem-vindo ao Adocato!</h1>
-        <p class="subtitle">Encontre e adote seu novo melhor amigo.</p>
-        <a href="{% url 'adocato:listar_gatos' %}" class="button is-primary mt-4">Ver Gatos para Adoção</a>
+        
+        {% if user.is_authenticated %}
+            {% if eh_adotante %}
+                <p class="subtitle">Olá, {{ usuario_nome }}! 🐱</p>
+                <p class="content">Encontre e adote seu novo melhor amigo felino. Nossa plataforma conecta você aos gatos que precisam de um lar cheio de amor.</p>
+                <div class="buttons">
+                    <a href="{% url 'adocato:gatos_disponiveis' %}" class="button is-info is-medium">
+                        <span class="icon">
+                            <i class="fas fa-cat"></i>
+                        </span>
+                        <span>Gatos Disponíveis</span>
+                    </a>
+                </div>
+            {% elif eh_coordenador %}
+                <p class="subtitle">Olá, {{ usuario_nome }}! 👋</p>
+                <p class="content">Painel de coordenação do sistema de adoção. Gerencie gatos, raças e solicitações de adoção.</p>
+                <div class="buttons">
+                    <a href="{% url 'adocato:listar_gatos' %}" class="button is-primary is-medium">
+                        <span class="icon">
+                            <i class="fas fa-list"></i>
+                        </span>
+                        <span>Gerenciar Gatos</span>
+                    </a>
+                    <a href="{% url 'adocato:cadastrar_gato' %}" class="button is-success is-medium">
+                        <span class="icon">
+                            <i class="fas fa-plus"></i>
+                        </span>
+                        <span>Cadastrar Gato</span>
+                    </a>
+                </div>
+            {% else %}
+                <p class="subtitle">Olá, {{ request.session.usuario_nome }}! 👋.</p>
+                <p class="content">Painel de coordenação para registro de coordenadores.</p>
+                <a href="{% url 'adocato:listar_gatos' %}" class="button is-primary is-medium">Ver Gatos</a>
+            {% endif %}
+        {% else %}
+            <p class="subtitle">Encontre e adote seu novo melhor amigo.</p>
+            <p class="content">Faça login para ter acesso completo às funcionalidades da plataforma de adoção.</p>
+            <div class="buttons">
+                <a href="{% url 'adocato:listar_gatos' %}" class="button is-primary is-medium">
+                    <span class="icon">
+                        <i class="fas fa-cat"></i>
+                    </span>
+                    <span>Ver Gatos para Adoção</span>
+                </a>
+                <a href="{% url 'adocato:login' %}" class="button is-info is-medium">
+                    <span class="icon">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </span>
+                    <span>Fazer Login</span>
+                </a>
+            </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

@@ -2,7 +2,42 @@ from django.db import models
 from datetime import date,datetime, timedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils import timezone
+from django.conf import settings
 from .utils import Utilitaria
+
+# Importar campos do Cloudinary quando disponível
+try:
+    from cloudinary.models import CloudinaryField
+    CLOUDINARY_AVAILABLE = True
+except ImportError:
+    CLOUDINARY_AVAILABLE = False
+
+# Função helper para escolher o tipo de campo baseado no ambiente
+def get_image_field(*args, **kwargs):
+    """Retorna CloudinaryField em produção ou ImageField em desenvolvimento"""
+    if CLOUDINARY_AVAILABLE and not settings.DEBUG:
+        # Remove o upload_to para Cloudinary e adiciona folder se necessário
+        if 'upload_to' in kwargs:
+            folder = kwargs.pop('upload_to').rstrip('/')
+            if 'folder' not in kwargs:
+                kwargs['folder'] = f'adocato/{folder}'
+        return CloudinaryField(*args, **kwargs)
+    else:
+        return models.ImageField(*args, **kwargs)
+
+def get_file_field(*args, **kwargs):
+    """Retorna CloudinaryField em produção ou FileField em desenvolvimento"""
+    if CLOUDINARY_AVAILABLE and not settings.DEBUG:
+        # Remove o upload_to para Cloudinary e adiciona folder se necessário
+        if 'upload_to' in kwargs:
+            folder = kwargs.pop('upload_to').rstrip('/')
+            if 'folder' not in kwargs:
+                kwargs['folder'] = f'adocato/{folder}'
+        kwargs['resource_type'] = 'auto'  # Para aceitar qualquer tipo de arquivo
+        return CloudinaryField(*args, **kwargs)
+    else:
+        return models.FileField(*args, **kwargs)
 
 class Raca(models.Model):
     nome = models.CharField(max_length=100, unique=True)
@@ -33,7 +68,7 @@ class Gato(models.Model):
     descricao = models.TextField(blank=True, null=True)
     disponivel = models.BooleanField(default=True)
     raca = models.ForeignKey(Raca, on_delete=models.CASCADE, related_name='gatos')
-    foto= models.ImageField(upload_to='gatos/', blank=True, null=True)
+    foto = get_image_field(upload_to='gatos/', blank=True, null=True)
     
     def __str__(self):
         return f"{self.nome} ({self.raca.nome})"
@@ -67,6 +102,13 @@ class Gato(models.Model):
             erros="O gato deve ter uma raça associada."
         if erros:
             raise ValidationError(erros)
+    class Meta:
+        verbose_name_plural = "Gatos"
+        verbose_name = "Gato"
+        ordering = ['nome']
+        permissions=[
+            ("pode_deletar_gato", "Pode deletar gato"),
+        ]
 
 class Adotante(User):
     nome= models.CharField(max_length=100)
@@ -84,6 +126,11 @@ class Adotante(User):
             erros['username']="O nome de usuário deve ter pelo menos 3 caracteres."
         if len(self.password) < 6:
             erros['password']="A senha deve ter pelo menos 6 caracteres."
+        usuario=User.objects.filter(username=self.username).first()
+        if usuario and usuario.id != self.id:
+            erros['username']="O nome de usuário já está em uso."
+        if self.email and User.objects.filter(email=self.email).exclude(id=self.id).exists():
+            erros['email']="O email já está em uso."
         if len(self.nome) < 3:
             erros['nome']="O nome do adotante deve ter pelo menos 3 caracteres."
         if len(self.cpf) != 11 or not self.cpf.isdigit():
@@ -128,6 +175,11 @@ class Coordenador(User):
         erros={}
         if len(self.username) < 3:
             erros['username']="O nome de usuário deve ter pelo menos 3 caracteres."
+        usuario=User.objects.filter(username=self.username).first()
+        if usuario and usuario.id != self.id:
+            erros['username']="O nome de usuário já está em uso."
+        if self.email and User.objects.filter(email=self.email).exclude(id=self.id).exists():
+            erros['email']="O email já está em uso."
         if len(self.password) < 6:
             erros['password']="A senha deve ter pelo menos 6 caracteres."
         if len(self.nome) < 3:
@@ -145,13 +197,13 @@ class Solicitacao(models.Model):
     adotante = models.ForeignKey(Adotante, on_delete=models.CASCADE, related_name='solicitacoes_adotante')
     gato = models.ForeignKey(Gato, on_delete=models.CASCADE, related_name='solicitacoes_gato')
     dataSolicitacao = models.DateTimeField(auto_now=True) #Modificado para auto_now=True para registrar a data e hora da solicitação automaticamente
-    status = models.CharField(max_length=20, choices=[('Em_Analise', 'Em Análise'), ('Aprovada', 'Aprovada'), ('Reprovada', 'Reprovada'),('Em_Recurso','Em Recurso')], default='Reprovada')
+    status = models.CharField(max_length=20, choices=[('Em_Edicao','Em Edição'),('Em_Analise', 'Em Análise'), ('Aprovada', 'Aprovada'), ('Reprovada', 'Reprovada'),('Em_Recurso','Em Recurso')], default='Em_Edicao')
     recurso= models.TextField(blank=True, null=True, verbose_name="Motivo do Recurso")
     avaliadores = models.ManyToManyField(Coordenador, blank=True, related_name='avaliacoes_solicitadas',through='Avaliacao')
     def esta_atrasado(self):
-        """Verifica se a solicitação está atrasada."""
+        """Verifica se a solicitação está atrasada."""  
         prazo = self.dataSolicitacao + timedelta(days=7) #Nesse caso, seria necessário atualizar a data da solicitação para o dia atual quando o status for 'Em Recurso'
-        return (self.status == 'Em_Analise' or self.status == 'Em_Recurso') and datetime.now() > prazo 
+        return (self.status == 'Em_Analise' or self.status == 'Em_Recurso') and timezone.now() > prazo 
     
     def clean(self):
         erros={}
@@ -159,7 +211,7 @@ class Solicitacao(models.Model):
             erros['adotante'] = "O adotante é obrigatório."
         if not self.gato:
             erros['gato'] = "O gato é obrigatório."
-        if self.status not in ['Em_Analise', 'Aprovada', 'Reprovada', 'Em_Recurso']:
+        if self.status not in ['Em_Edicao', 'Em_Analise', 'Aprovada', 'Reprovada', 'Em_Recurso']:
             erros['status'] = "Status inválido."
         if self.status == 'Em_Recurso' and not self.recurso:    
             erros['recurso'] = "O motivo do recurso é obrigatório quando o status é 'Em Recurso'."
@@ -204,7 +256,7 @@ class Avaliacao(models.Model):
 
 class Documento(models.Model):
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE, related_name='documentos')
-    arquivo = models.FileField(upload_to='documentos/', verbose_name="Arquivo")
+    arquivo = get_file_field(upload_to='documentos/', verbose_name="Arquivo")
     descricao = models.CharField(max_length=255, blank=True, null=True, verbose_name="Descrição")
     enviado_em = models.DateTimeField(auto_now_add=True, verbose_name="Enviado em")
     

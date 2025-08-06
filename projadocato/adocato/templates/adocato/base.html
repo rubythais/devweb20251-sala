@@ -5,9 +5,13 @@
     <title>{% block title %}Adocato{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     {% load static %}
+    <link rel="stylesheet" href="{% static 'adocato/css/darkmode.css' %}">
 </head>
-<body>
+<body class="{% if request.session.dark_mode %}dark-mode{% endif %}">
     <header>
         <!-- Navbar do Bulma: https://bulma.io/documentation/components/navbar/ -->
         <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
@@ -24,14 +28,51 @@
             </div>
             <div id="navbarBasic" class="navbar-menu">
                 <div class="navbar-start">
-                    <a class="navbar-item" href="#">Raça</a>
+                    {%if eh_coordenador %}
+                        <a class="navbar-item" href="{% url 'adocato:listar_racas' %}">Raças</a>
+                    {% endif %}
                     <a class="navbar-item" href="{% url 'adocato:listar_gatos' %}">Gatos</a>
-                    <a class="navbar-item" href="#">Solicitação</a>
+                    
+                    {% if eh_adotante %}
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">Adoção</a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item" href="{% url 'adocato:gatos_disponiveis' %}">Gatos Disponíveis</a>
+                                <a class="navbar-item" href="{% url 'adocato:minhas_solicitacoes' %}">Minhas Solicitações</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if eh_coordenador %}
+                        <div class="navbar-item has-dropdown is-hoverable">
+                            <a class="navbar-link">Solicitações</a>
+                            <div class="navbar-dropdown">
+                                <a class="navbar-item" href="{% url 'adocato:solicitacoes_pendentes' %}">Pendentes</a>
+                                <a class="navbar-item" href="{% url 'adocato:gatos_disponiveis' %}">Gatos Disponíveis</a>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if eh_administrador %}
+                        <a class="navbar-item" href="{% url 'adocato:listar_coordenadores' %}">Coordenadores</a>
+                    {% endif %}
+                    {% if eh_coordenador or eh_administrador %}
+                        <a class="navbar-item" href="{% url 'admin:index' %}">Administração</a>
+                    {% endif %}
+                    {%if eh_adotante%}
+                        <a class="navbar-item" href="{% url 'adocato:contato' %}">Contato</a>
+                    {% endif %}
                 </div>
                 <div class="navbar-end">
                     <div class="navbar-item">
                         <div class="buttons">
-                            <a href="#" class="button is-light">Login</a>
+                           <button id="dark-mode-toggle" class="button is-light">{% if request.session.dark_mode %}Modo Claro{% else %}Modo Escuro{% endif %}</button>
+                            {% if user.is_authenticated %}
+                                <a class="button is-light" href="{% url 'adocato:perfil' %}">Perfil</a>
+                                <a class="button is-light" href="{% url 'adocato:logout' %}">Sair</a>
+                            {% else %}
+                                <a class="button is-primary" href="{% url 'adocato:login' %}">Login</a>
+                            {% endif %}
+                           
                         </div>
                     </div>
                 </div>
@@ -45,6 +86,9 @@
             <!-- Conteúdo principal será inserido aqui -->
              <h1 class="title">Bloco Padrão</h1>
             {% endblock %}
+        </div>
+        <div class="container">
+            {% include 'adocato/includes/pagination.html' %}
         </div>
     </main>
     <footer class="footer">
@@ -69,5 +113,6 @@
             }
         });
     </script>
+    <script src="{% static 'adocato/js/toogle_darkmode.js' %}"></script>
 </body>
 </html>

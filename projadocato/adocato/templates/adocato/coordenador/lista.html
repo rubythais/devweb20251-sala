@@ -1,0 +1,141 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Lista de Coordenadores{% endblock %}
+
+{% block content %}
+<div class="box">
+    <h4 class="title is-4">
+        <span class="icon-text">
+            <span class="icon">
+                <i class="fas fa-users"></i>
+            </span>
+            <span>Lista de Coordenadores</span>
+        </span>
+    </h4>
+
+    <!-- Filtros -->
+        <form method="get" action="{% url 'adocato:listar_coordenadores' %}">
+            <div class="columns">
+                <div class="column is-4">
+                    <div class="field">
+                        <label class="label">Nome</label>
+                        <div class="control">
+                            <input class="input" type="text" name="nome" 
+                                   value="{{ filtros.nome }}" placeholder="Filtrar por nome">
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-4">
+                    <div class="field">
+                        <label class="label">CPF</label>
+                        <div class="control">
+                            <input class="input" type="text" name="cpf" 
+                                   value="{{ filtros.cpf }}" placeholder="Filtrar por CPF">
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-4">
+                    <div class="field">
+                        <label class="label">Username</label>
+                        <div class="control">
+                            <input class="input" type="text" name="username" 
+                                   value="{{ filtros.username }}" placeholder="Filtrar por username">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="field is-grouped">
+                <div class="control">
+                    <button type="submit" class="button is-info">
+                        <span class="icon">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <span>Filtrar</span>
+                    </button>
+                </div>
+                <div class="control">
+                    <a href="{% url 'adocato:listar_coordenadores' %}" class="button">
+                        <span class="icon">
+                            <i class="fas fa-times"></i>
+                        </span>
+                        <span>Limpar</span>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+    <!-- Botão para novo coordenador -->
+    <div class="level">
+        <div class="level-left">
+            <p class="level-item">
+                <strong>{{ coordenadores|length }} coordenador{{ coordenadores|length|pluralize:"es" }} encontrado{{ coordenadores|length|pluralize:"s" }}</strong>
+            </p>
+        </div>
+        <div class="level-right">
+            <p class="level-item">
+                <a href="{% url 'adocato:cadastrar_coordenador' %}" class="button is-primary">
+                    <span class="icon">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span>Novo Coordenador</span>
+                </a>
+            </p>
+        </div>
+    </div>
+
+    {% if coordenadores %}
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped is-hoverable">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>CPF</th>
+                        <th>Data de Cadastro</th>
+                        <th class="has-text-centered">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coordenador in coordenadores %}
+                        <tr>
+                            <td>
+                                <strong>{{ coordenador.nome }}</strong>
+                            </td>
+                            <td>{{ coordenador.username }}</td>
+                            <td>
+                                {% if coordenador.email %}
+                                    {{ coordenador.email }}
+                                {% else %}
+                                    <span class="has-text-grey-light">Não informado</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ coordenador.cpf_formatado }}</td>
+                            <td>{{ coordenador.date_joined|date:"d/m/Y H:i" }}</td>
+                            <td class="has-text-centered">
+                                <div class="buttons is-centered">
+                                    <a href="{% url 'adocato:atualizar_coordenador' coordenador.id %}" 
+                                       class="button is-small is-info" title="Editar">
+                                        <span class="icon">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="notification is-info">
+            <p>
+                <span class="icon">
+                    <i class="fas fa-info-circle"></i>
+                </span>
+                Nenhum coordenador encontrado com os filtros aplicados.
+            </p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

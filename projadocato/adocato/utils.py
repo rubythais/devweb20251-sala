@@ -1,4 +1,87 @@
 from django.contrib import messages
+
+
+class GerenciadorSessaoUsuario:
+    @staticmethod
+    def determinar_tipo_usuario(request):
+        """
+        Determina o tipo de usuário (adotante ou coordenador) e armazena na sessão.
+        Retorna um dicionário com informações do usuário.
+        """
+        if not request.user.is_authenticated:
+            return {
+                'tipo_usuario': 'anonimo',
+                'eh_adotante': False,
+                'eh_coordenador': False,
+                'eh_administrador': False,
+                'usuario_nome': None,
+                'usuario_id': None
+            }
+        
+        # Verifica se já existe na sessão e se é para o mesmo usuário
+        sessao_key = f'tipo_usuario_{request.user.id}'
+        if sessao_key in request.session:
+            return request.session[sessao_key]
+        
+        # Importa aqui para evitar import circular
+        from .services.casousoadotante import CasoUsoAdotante
+        from .services.casousocoordenador import CasoUsoCoordenador
+        
+        # Verifica se é adotante
+        adotante = CasoUsoAdotante.buscar_adotante_por_id(request.user.id)
+        if adotante:
+            info_usuario = {
+                'tipo_usuario': 'adotante',
+                'eh_adotante': True,
+                'eh_coordenador': False,
+                'eh_administrador': False,
+                'usuario_nome': adotante.nome,
+                'usuario_id': adotante.id,
+                'usuario_email': adotante.email,
+                'usuario_username': adotante.username
+            }
+        else:
+            # Verifica se é coordenador
+            coordenador = CasoUsoCoordenador.buscar_coordenador_por_id(request.user.id)
+            if coordenador:
+                info_usuario = {
+                    'tipo_usuario': 'coordenador',
+                    'eh_adotante': False,
+                    'eh_coordenador': True,
+                    'eh_administrador': False,
+                    'usuario_nome': coordenador.nome,
+                    'usuario_id': coordenador.id,
+                    'usuario_email': coordenador.email,
+                    'usuario_username': coordenador.username
+                }
+            else:
+                # Usuário logado mas sem tipo específico
+                info_usuario = {
+                    'tipo_usuario': 'Administrador',
+                    'eh_adotante': False,
+                    'eh_coordenador': False,
+                    'eh_administrador': True,
+                    'usuario_nome': request.user.username,
+                    'usuario_id': request.user.id,
+                    'usuario_email': request.user.email,
+                    'usuario_username': request.user.username
+                }
+        
+        # Armazena na sessão
+        request.session[sessao_key] = info_usuario
+        request.session['usuario_nome'] = info_usuario['usuario_nome'] # Armazena o nome do usuário(login) na sessão
+        return info_usuario
+    
+    @staticmethod
+    def limpar_sessao_usuario(request):
+        """Remove as informações do usuário da sessão."""
+        if request.user.is_authenticated:
+            sessao_key = f'tipo_usuario_{request.user.id}'
+            if sessao_key in request.session:
+                del request.session[sessao_key]
+    
+
+
 class Utilitaria:
     @staticmethod
     def formatar_cpf(cpf: str) -> str:

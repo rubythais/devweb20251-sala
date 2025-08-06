@@ -1,0 +1,420 @@
+{% extends 'adocato/base.html' %}
+
+{% block title %}Solicitação {{ solicitacao.id }} - {{ solicitacao.gato.nome }}{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'adocato:index' %}">Início</a></li>
+                <li><a href="{% url 'adocato:minhas_solicitacoes' %}">Minhas Solicitações</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Solicitação #{{ solicitacao.id }}</a></li>
+            </ul>
+        </nav>
+
+        <div class="level">
+            <div class="level-left">
+                <div class="level-item">
+                    <h1 class="title">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </span>
+                            <span>Solicitação #{{ solicitacao.id }}</span>
+                        </span>
+                    </h1>
+                </div>
+            </div>
+            <div class="level-right">
+                <div class="level-item">
+                    <span class="tag is-large 
+                        {% if solicitacao.status == 'Em_Analise' %}is-warning
+                        {% elif solicitacao.status == 'Aprovado' %}is-success
+                        {% elif solicitacao.status == 'Reprovado' %}is-danger
+                        {% elif solicitacao.status == 'Em_Edicao' %}is-info
+                        {% else %}is-light{% endif %}">
+                        <span class="icon">
+                            {% if solicitacao.status == 'Pendente' %}
+                                <i class="fas fa-clock"></i>
+                            {% elif solicitacao.status == 'Aprovado' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif solicitacao.status == 'Reprovado' %}
+                                <i class="fas fa-times-circle"></i>
+                            {% elif solicitacao.status == 'Em_Edicao' %}
+                                <i class="fas fa-edit"></i>
+                            {% endif %}
+                        </span>
+                        <span>{{ solicitacao.get_status_display }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="columns">
+            <div class="column is-8">
+                <!-- Informações principais -->
+                <div class="box">
+                    <h2 class="title is-4">{{ solicitacao.gato.nome }}</h2>
+                    
+                    <div class="columns">
+                        <div class="column is-4">
+                            {% if solicitacao.gato.foto %}
+                                <figure class="image is-square">
+                                    <img src="{{ solicitacao.gato.foto.url }}" alt="{{ solicitacao.gato.nome }}" class="is-rounded">
+                                </figure>
+                            {% else %}
+                                <figure class="image is-square">
+                                    <div class="has-background-grey-light is-flex is-justify-content-center is-align-items-center" style="height: 100%;">
+                                        <span class="icon has-text-grey">
+                                            <i class="fas fa-cat fa-3x"></i>
+                                        </span>
+                                    </div>
+                                </figure>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="column is-8">
+                            <div class="content">
+                                <p><strong>Raça:</strong> {{ solicitacao.gato.raca.nome }}</p>
+                                <p><strong>Idade:</strong> {{ solicitacao.gato.idade }} ano{{ solicitacao.gato.idade|pluralize:"s" }}</p>
+                                <p><strong>Sexo:</strong> {{ solicitacao.gato.get_sexo_display }}</p>
+                                <p><strong>Cor:</strong> {{ solicitacao.gato.cor }}</p>
+                                <p><strong>Data de Nascimento:</strong> {{ solicitacao.gato.dataNascimento|date:"d/m/Y" }}</p>
+                                
+                                {% if solicitacao.gato.descricao %}
+                                    <p><strong>Descrição:</strong></p>
+                                    <p>{{ solicitacao.gato.descricao|linebreaks }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline da solicitação -->
+                <div class="box">
+                    <h3 class="title is-4">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-history"></i>
+                            </span>
+                            <span>Histórico da Solicitação</span>
+                        </span>
+                    </h3>
+                    
+                    <div class="timeline">
+                        <!-- Solicitação criada -->
+                        <div class="timeline-item">
+                            <div class="timeline-marker is-success">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <p class="heading">{{ solicitacao.dataSolicitacao|date:"d/m/Y H:i" }}</p>
+                                <p><strong>Solicitação Criada</strong></p>
+                                <p class="has-text-grey">Você solicitou a adoção de {{ solicitacao.gato.nome }}.</p>
+                            </div>
+                        </div>
+
+                        <!-- Avaliações -->
+                        {% for avaliacao in avaliacoes %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker 
+                                    {% if avaliacao.status == 'Aprovado' %}is-success
+                                    {% else %}is-danger{% endif %}">
+                                    {% if avaliacao.status == 'Aprovado' %}
+                                        <i class="fas fa-check"></i>
+                                    {% else %}
+                                        <i class="fas fa-times"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="timeline-content">
+                                    <p class="heading">{{ avaliacao.dataAvaliacao|date:"d/m/Y H:i" }}</p>
+                                    <p><strong>Avaliação {{ avaliacao.get_status_display }}</strong></p>
+                                    <p class="has-text-grey">Por: {{ avaliacao.coordenador.nome }}</p>
+                                    {% if avaliacao.parecer %}
+                                        <div class="box is-shadowless">
+                                            <div class="content">
+                                                <p><strong>Parecer:</strong></p>
+                                                <p>{{ avaliacao.parecer|linebreaks }}</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Recurso -->
+                        {% if solicitacao.recurso %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker is-warning">
+                                    <i class="fas fa-balance-scale"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <p class="heading">{{ solicitacao.dataRecurso|date:"d/m/Y H:i" }}</p>
+                                    <p><strong>Recurso Impetrado</strong></p>
+                                    <div class="box is-shadowless">
+                                        <div class="content">
+                                            <p>{{ solicitacao.recurso|linebreaks }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Status atual -->
+                        <div class="timeline-item">
+                            <div class="timeline-marker 
+                                {% if solicitacao.status == 'Pendente' %}is-warning
+                                {% elif solicitacao.status == 'Aprovado' %}is-success
+                                {% elif solicitacao.status == 'Reprovado' %}is-danger
+                                {% elif solicitacao.status == 'Em_Edicao' %}is-info
+                                {% else %}is-light{% endif %}">
+                                {% if solicitacao.status == 'Pendente' %}
+                                    <i class="fas fa-clock"></i>
+                                {% elif solicitacao.status == 'Aprovado' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elif solicitacao.status == 'Reprovado' %}
+                                    <i class="fas fa-times-circle"></i>
+                                {% elif solicitacao.status == 'Em_Edicao' %}
+                                    <i class="fas fa-edit"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <p class="heading">Agora</p>
+                                <p><strong>Status: {{ solicitacao.get_status_display }}</strong></p>
+                                {% if solicitacao.status == 'Pendente' %}
+                                    <p class="has-text-grey">
+                                        Aguardando avaliação do coordenador.
+                                        {% if solicitacao.esta_atrasado %}
+                                            <span class="tag is-danger is-small ml-2">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                EM ATRASO
+                                            </span>
+                                        {% endif %}
+                                    </p>
+                                {% elif solicitacao.status == 'Aprovado' %}
+                                    <p class="has-text-grey">
+                                        Parabéns! Sua solicitação foi aprovada. Entre em contato com a organização para prosseguir com a adoção.
+                                    </p>
+                                {% elif solicitacao.status == 'Reprovado' %}
+                                    <p class="has-text-grey">
+                                        Sua solicitação foi reprovada. Você pode impetrar recurso se desejar.
+                                    </p>
+                                {% elif solicitacao.status == 'Em_Edicao' %}
+                                    <p class="has-text-grey">
+                                        Sua solicitação está em edição. Você pode fazer alterações e reenviar.
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="column is-4">
+                <!-- Ações disponíveis -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-cogs"></i>
+                            </span>
+                            <span>Ações Disponíveis</span>
+                        </span>
+                    </h3>
+                    
+                    <div class="buttons is-fullwidth">
+                        {% if solicitacao.status == 'Em_Edicao' %}
+                            <a href="{% url 'adocato:editar_solicitacao' solicitacao.id %}" class="button is-primary is-fullwidth">
+                                <span class="icon">
+                                    <i class="fas fa-edit"></i>
+                                </span>
+                                <span>Editar Solicitação</span>
+                            </a>
+                        {% endif %}
+
+                        {% if solicitacao.status == 'Reprovado' and not solicitacao.recurso %}
+                            <button class="button is-warning is-fullwidth" onclick="document.getElementById('modal-recurso').classList.add('is-active')">
+                                <span class="icon">
+                                    <i class="fas fa-balance-scale"></i>
+                                </span>
+                                <span>Impetrar Recurso</span>
+                            </button>
+                        {% endif %}
+
+                        <a href="{% url 'adocato:minhas_solicitacoes' %}" class="button is-light is-fullwidth">
+                            <span class="icon">
+                                <i class="fas fa-arrow-left"></i>
+                            </span>
+                            <span>Voltar</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Informações do gato -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                            <span>Informações Adicionais</span>
+                        </span>
+                    </h3>
+                    
+                    <div class="content">
+                        <p><strong>ID da Solicitação:</strong> {{ solicitacao.id }}</p>
+                        <p><strong>Data da Solicitação:</strong> {{ solicitacao.dataSolicitacao|date:"d/m/Y H:i" }}</p>
+                        {% if solicitacao.dataAvaliacao %}
+                            <p><strong>Data da Última Avaliação:</strong> {{ solicitacao.dataAvaliacao|date:"d/m/Y H:i" }}</p>
+                        {% endif %}
+                        {% if solicitacao.dataRecurso %}
+                            <p><strong>Data do Recurso:</strong> {{ solicitacao.dataRecurso|date:"d/m/Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contato -->
+                <div class="box">
+                    <h3 class="title is-5">
+                        <span class="icon-text">
+                            <span class="icon">
+                                <i class="fas fa-phone"></i>
+                            </span>
+                            <span>Precisa de Ajuda?</span>
+                        </span>
+                    </h3>
+                    
+                    <div class="content">
+                        <p>Entre em contato conosco se tiver dúvidas sobre sua solicitação.</p>
+                        <a href="{% url 'adocato:contato' %}" class="button is-info is-fullwidth">
+                            <span class="icon">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <span>Enviar Mensagem</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para recurso -->
+{% if solicitacao.status == 'Reprovado' and not solicitacao.recurso %}
+<div id="modal-recurso" class="modal">
+    <div class="modal-background" onclick="document.getElementById('modal-recurso').classList.remove('is-active')"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                <span class="icon-text">
+                    <span class="icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </span>
+                    <span>Impetrar Recurso</span>
+                </span>
+            </p>
+            <button class="delete" aria-label="close" onclick="document.getElementById('modal-recurso').classList.remove('is-active')"></button>
+        </header>
+        <form method="post" action="{% url 'adocato:impetrar_recurso' solicitacao.id %}">
+            <section class="modal-card-body">
+                {% csrf_token %}
+                <div class="field">
+                    <label class="label">Justificativa do Recurso</label>
+                    <div class="control">
+                        <textarea name="recurso" class="textarea" rows="6" 
+                                  placeholder="Explique os motivos pelos quais você acredita que a decisão deve ser reavaliada..." 
+                                  required></textarea>
+                    </div>
+                    <p class="help">
+                        Descreva detalhadamente os motivos pelos quais você discorda da decisão. 
+                        Forneça informações adicionais que possam ser relevantes para uma nova avaliação.
+                    </p>
+                </div>
+            </section>
+            <footer class="modal-card-foot">
+                <button type="submit" class="button is-warning">
+                    <span class="icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </span>
+                    <span>Enviar Recurso</span>
+                </button>
+                <button type="button" class="button" onclick="document.getElementById('modal-recurso').classList.remove('is-active')">
+                    Cancelar
+                </button>
+            </footer>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.timeline {
+    position: relative;
+    margin: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dbdbdb;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 60px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+}
+
+.timeline-marker.is-success {
+    background-color: #23d160;
+}
+
+.timeline-marker.is-danger {
+    background-color: #ff3860;
+}
+
+.timeline-marker.is-warning {
+    background-color: #ffdd57;
+    color: #363636;
+}
+
+.timeline-marker.is-info {
+    background-color: #3273dc;
+}
+
+.timeline-content {
+    background: white;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1);
+}
+
+.timeline-content .heading {
+    margin-bottom: 5px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+</style>
+{% endblock %}

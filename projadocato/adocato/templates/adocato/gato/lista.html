@@ -32,7 +32,9 @@
                     <th>Raça</th>
                     <th>Idade</th>
                     <th>Disponível</th>
-                    <th>Ações</th>
+                    {% if eh_coordenador %}
+                        <th>Ações</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -49,12 +51,17 @@
                     <td>{{ gato.raca }}</td>
                     <td>{{ gato.idade }}</td>
                     <td>{{ gato.esta_disponivel}}</td>
-                    <td>
-                        <div class="buttons">
-                            <a class="button is-info" href="{% url 'adocato:atualizar_gato' gato.id %}">Editar</a>
-                            <a class="button is-danger" href="{% url 'adocato:excluir_gato' gato.id %}" onclick="return confirm('Tem certeza que deseja excluir este gato?');">Excluir</a>
-                        </div>
-                    </td>
+                     {% if eh_coordenador %}
+                            <td>
+                                <div class="buttons">
+                                
+                                        <a class="button is-info" href="{% url 'adocato:atualizar_gato' gato.id %}">Editar</a>
+                                        {% if perms.adocato.pode_deletar_gato %}
+                                            <a class="button is-danger" href="{% url 'adocato:excluir_gato' gato.id %}" onclick="return confirm('Tem certeza que deseja excluir este gato?');">Excluir</a>
+                                        {% endif %}
+                                </div>
+                            </td>
+                      {% endif %}
                 </tr>
                 {% empty %}
                 <tr>
@@ -64,10 +71,12 @@
             </tbody>
         </table>
     </div>
+    {% if eh_coordenador %}
        <div class="mt-4">
             <a href="{% url 'adocato:cadastrar_gato' %}" class="button is-primary">
                 Cadastrar Novo Gato
             </a>
         </div>
+    {% endif %}
 </div>
 {% endblock %}
